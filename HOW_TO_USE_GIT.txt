@@ -93,7 +93,7 @@ git status
 
 
 
-## Viewing changes
+## Viewing changes: differences between working copy and repository copy.
 
 git diff
 
