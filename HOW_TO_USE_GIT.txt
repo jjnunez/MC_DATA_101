@@ -99,9 +99,9 @@ git diff
 
 
 
+## Working copy > Staging area > Repository. Compare staging area to repository
 
-
-
+git diff --staged
 
 
 
