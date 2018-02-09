@@ -105,6 +105,14 @@ git diff --staged
 
 
 
+## How to delete files: deleting a file called first.txt
+
+git rm first.txt
+
+
+
+
+
 
 
 
