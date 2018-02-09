@@ -84,6 +84,7 @@ git status
 
 
 
+## Git is keeping track of all of the files!
 
 
 
