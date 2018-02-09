@@ -105,9 +105,25 @@ git diff --staged
 
 
 
-## How to delete files: deleting a file called first.txt
+## How to delete files: deleting a file called first.txt. You have to commit change after.
 
 git rm first.txt
+
+
+
+## How to rename files: First change the name on desktop, then add on git, then remove old one, and ask for status
+
+git add home.txt
+git rm blabla.txt
+git status
+
+
+
+
+
+
+
+
 
 
 
