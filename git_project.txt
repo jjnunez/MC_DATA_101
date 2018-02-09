@@ -1,0 +1,84 @@
+## Git website project
+
+## first got to folder
+
+cd Desktop
+cd Dogs
+
+## then initialize repository and add files and commit files to repo
+
+git intit
+git add .
+git commit -m "This is the first commit of the project"
+
+
+
+## How to commit directly from working copy to repo. Only helpful for small changes.
+## First make changes to html files on notepad.
+## There isn't a need to put them in the staging area. 
+
+
+git commit -am "Cleaned up HTML comments"
+
+
+
+## How to undo changes to working directory. Take something from the repository and make it your current copy
+
+git checkout -- index.html
+
+
+
+## How to unstage a file. Bring it back down to working copy
+
+git reset HEAD index.html
+
+
+
+## How to get old version back from repository. 
+## We revert back without deleting the current one. Revert back
+## First log to find the commit id in yellow and then check out. First few characters
+## Go to this commit and get a copy of that version of index.html
+
+git log
+git checkout 52a5b8952b -- index.html 
+git commit -am "This is how to revert back"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

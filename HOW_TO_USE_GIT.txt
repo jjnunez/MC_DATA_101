@@ -119,9 +119,30 @@ git status
 
 
 
-## Easy way to rename a file. mv also means move.
+## Easy way to rename a file. mv also means move. Moving is the same as renaming.
 
 git mv home.txt renamedfile.txt
+
+
+
+## How to move it into a folder in the same working directory: 
+
+git mv renamedfile.txt testing/home.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
