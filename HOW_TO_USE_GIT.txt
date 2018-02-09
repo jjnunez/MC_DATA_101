@@ -31,3 +31,68 @@ git init
 ## How to see all of the hidden stuff in folders
 
 ls -la
+
+
+
+## Let git know that we made some changes to project. Hey git add all of the changes to the project and hit enter
+
+git add . 
+
+
+
+## We need to commit the changes now. Save this point in time. Taking a snapshot of this point in time.
+
+git commit -m "This is our first commit"
+
+
+
+## How to view commit history
+
+git log
+
+
+
+## How to view commits from only one person
+
+git log --author="Juan"
+
+
+
+## Understanding how changes are made. 
+
+git status
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
