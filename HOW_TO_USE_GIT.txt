@@ -1,0 +1,33 @@
+## go back one directory
+
+cd ..
+
+
+
+## go forward
+
+cd 'Juan Nunez'
+
+
+
+## go to Desktop
+
+cd Desktop
+
+
+
+## go to DATA101 Folder
+
+cd MC_DATA_101
+
+
+
+## turn the current folder to the repository or started git project
+
+git init
+
+
+
+## How to see all of the hidden stuff in folders
+
+ls -la
