@@ -119,6 +119,9 @@ git status
 
 
 
+## Easy way to rename a file. mv also means move.
+
+git mv home.txt renamedfile.txt
 
 
 
