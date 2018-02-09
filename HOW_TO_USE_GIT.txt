@@ -34,7 +34,8 @@ ls -la
 
 
 
-## Let git know that we made some changes to project. Hey git add all of the changes to the project and hit enter
+## Let git know that we made some changes to project. Hey git add all of the changes to the project. working > staging > repository
+## These are the files that are ready to be committed. The period means all but individual files can be put in that area
 
 git add . 
 
@@ -64,8 +65,22 @@ git status
 
 
 
+## Putting the files that were added or edited to the staging area so they are reaady to be added to the repository
+
+git add . 
 
 
+
+## Adding the other files to the repository
+
+git commit -m "Adding the other files"
+
+
+
+## now check log and status
+
+git log
+git status
 
 
 
