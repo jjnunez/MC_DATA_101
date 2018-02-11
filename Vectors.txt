@@ -1,0 +1,66 @@
+## Vectors
+
+num_vect <- c(0.5, 55, -10, 6)
+
+
+
+## How to create a vector with logical values based on the vector above
+
+tf <- num_vect < 1
+tf
+
+
+
+## Logical operators are < > <= >= == !=
+
+## Putting together a character vector
+
+my_char <- c("My", "name", "is")
+my_char
+paste(my_char, collapse = " ")
+
+
+
+## To simply do that: sep separates by what is in between the quotes
+
+paste("Hello", "world!", sep = " ")
+
+
+
+## Joining numbers and characters:
+
+paste(1:3, c("X", "Y", "Z"), sep = "")
+
+
+
+## Vector recycling
+
+paste(LETTERS, 1:4, sep = "-")
+
+
+abdirisak.mohamed@montgomerycollege.edu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
