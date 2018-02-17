@@ -1,0 +1,94 @@
+## Subsetting vectors: how to extract elements in a vectors
+
+## How to extract a vector that contains all of the non-missing cases
+
+y <- x[!is.na(x)]
+y
+
+
+
+## All of the positive vectors
+
+y[y > 0]
+
+
+
+
+## extract all of the positive and non-missing cases at once
+
+x[!is.na(x) & x > 0]
+
+
+
+## How to extract specific cases
+
+x [c(3, 5 , 7)]
+
+
+
+## How to NOT extract specific cases in a vectors
+
+x[c(-2, -10)]
+##or
+x[-c(2, 10)]
+
+
+
+## Create a vector with "named" elements
+
+vect <- c(foo = 11, bar = 2, norf = NA)
+vect
+
+
+
+## How to get just the names of the elements
+
+names(vect)
+
+
+
+## How to add names to the elements in a vector
+
+vect2 <- c(11, 2, NA)
+names(vect2) <- c("foo", "bar", "norf")
+
+
+
+## How to check if two things are identical or not
+
+identical(vect, vect2)
+
+
+
+## How to get what is inside a "named" case
+
+vect["bar"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

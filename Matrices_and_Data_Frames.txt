@@ -1,0 +1,92 @@
+## Matrices and Data Frames
+
+## How to create a vector with the numbers 1 through 20
+
+my_vector <- 1:20
+
+
+
+## How to get the length of a vector
+
+length(my_vector)
+
+
+
+## How to turn a vector into a matrix
+
+dim(my_vector) <- c(4, 5)
+
+
+
+## How to check the dimensions of an object in R
+
+dim(my_vector)
+
+
+
+## We can also get the attributes of an object in R
+
+attributes(my_vector)
+
+
+
+## To see what kind of object it is
+
+class(my_vector)
+my_matrix <- my_vector
+
+
+
+## How to create the same matrix
+
+my_matrix2 <- matrix(1:20, 4, 5)
+
+
+
+## Now to check that they are identical
+
+identical(my_matrix, my_matrix2)
+
+
+
+## How to add an extra column with the names of the respondents
+
+patients <- c("Bill", "Gina", "Kelly", "Sean")
+
+
+
+## How to merge columns and preserve the cases' class
+
+my_data <- data.frame(patients, my_matrix)
+
+
+
+## How to paste column names to a matrix
+
+cnames <- c("patient", "age", "weight", "bp", "rating", "test")
+colnames(my_data) <- cnames
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

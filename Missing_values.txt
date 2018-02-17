@@ -1,0 +1,43 @@
+## Missing Values
+
+## Vector with missing values
+
+x <- c(44, NA, 5, NA)
+x*3
+
+
+
+## Vector containing 1000 draws from a normal distribution
+
+y <- rnorm(1000)
+
+
+
+## How to repeat an element. The rep times is after the comma
+
+z <- rep(NA, 1000)
+
+
+
+## How to get cases from y and z above randomly
+
+my_data <- sample(c(y, z), 100)
+
+
+
+## How to see if data has missing values
+
+my_na <- is.na(my_data)
+
+
+
+## how many missing?
+
+sum(my_na)
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+## Logical operations in R
+
+## If somethings is true
+
+isTRUE(6 > 4)
+
+
+
+## to get exclusive or we use the function xor()
+
+xor(5 == 6, !FALSE)
+
+
+
+## The function which() helps find which in the vectors meet criteria. Same thing with all() and any()
+
+ints <- sample(10)
+which(ints <=2)
+
+
+
+
+
+
