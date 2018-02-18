@@ -1,0 +1,112 @@
+## Functions
+
+## How to create a mean function
+
+my_mean <- function(my_vector) {
+  y <- sum(my_vector)
+  z <- length(my_vector)
+  x <- y/z
+  x
+}
+
+
+
+## Now with another vector
+
+my_mean(c(4, 5, 10))
+
+
+
+## How to create a function that returns the remainder
+
+remainder <- function(num, divisor = 2) {
+  x <- num %% divisor
+  x
+}
+
+
+
+## Now to test the function
+
+remainder(5)
+
+
+
+## How to change the default divisor you may also change the order
+
+remainder(11, 5)
+remainder(divisor = 11, num = 5)
+
+
+
+## There is a way to look at the arguments of a function
+
+args(remainder)
+
+
+
+## functions within functions
+
+evaluate <- function(func, dat){
+  func(dat)
+}
+
+
+
+## Now using evaluate to find the standard deviation of a vector
+
+evaluate(sd, c(1.4, 3.6, 7.9, 8.8))
+
+
+
+## An anonymous function
+
+evaluate(function(x){x[1]}, c(8, 4, 0))
+evaluate(function(x){x[length(x)]}, c(8, 4, 0))
+
+
+
+## If I want to write a function that adds characters to a sentence every time
+
+telegram <- function(...){
+  paste("START", ..., "STOP")
+}
+
+telegram("fesfsd")
+
+
+
+## create a Binary operating function
+
+"%p%" <- function(left, right){ # Remember to add arguments!
+  paste(left, right)
+}
+
+"I" %p% "love" %p% "R!"
+
+
+
+## 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

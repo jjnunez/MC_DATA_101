@@ -1,0 +1,135 @@
+## lapply sapply
+
+
+## How to view the first 6 rows of a dataset
+
+head(flags)
+
+
+
+## How to check the dimensions of a dataset (rows and columns)
+
+dim(flags)
+
+
+
+## To get a more detailed description of the dataset
+
+viewinfo()
+
+
+
+## Apply a function to each columns
+
+cls_list <- lapply(flags, class)
+cls_list
+as.character(cls_list)
+
+ 
+
+## Sapply simplifies a list to a vector
+
+cls_vect <- sapply(flags, class)
+class(cls_vect)
+
+
+
+## I want the number of variables with a 1 in a dummy orange
+
+sum(flags$orange)
+
+
+
+## What if I want the sums for each color. The code says: give me all rows in the dataframe flags and give me only columns 11:17
+
+flag_colors <- flags[, 11:17]
+
+
+
+## Now I want a list with all of the sum of the colors
+
+lapply(flag_colors, sum)
+sapply(flag_colors, sum)
+
+
+
+## Now to get the proportion of yes to no of color
+
+sapply(flag_colors, mean)
+
+
+
+## Exact colums 19: 23
+
+flag_shapes <- flags[, 19:23]
+
+
+
+## Now I want the range of shapes in flags
+
+lapply(flag_shapes, range)
+
+
+
+## Sapply returns a matrix
+
+shape_mat <- sapply(flag_shapes, range)
+shape_mat
+
+
+
+## delete repeated numbers in a vector
+
+unique(c(3, 4, 5, 5, 5, 6, 6))
+
+
+
+## List of unique values in a dataset
+
+unique_vals <- lapply(flags, unique)
+unique_vals
+sapply(unique_vals, length)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
