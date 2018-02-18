@@ -1,5 +1,6 @@
 cd Desktop
 cd MC_DATA_101
+git init
 git add .
 git commit -m "Commit Helloworld.md to repository"
 
