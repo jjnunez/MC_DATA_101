@@ -1,0 +1,63 @@
+## vapply tapply
+
+
+
+## a list containing one vector of unique values for each column
+
+sapply(flags, unique)
+
+
+
+## vapply allows you to specify the format of the output
+
+
+
+## How to check the class of each column
+
+sapply(flags, class)
+
+
+
+## We can also get the same by specifying vapply with character(1). 
+
+vapply(flags, class, character(1))
+
+
+
+## We use tapply to split data into groups
+
+table(flags$landmass)
+table(flags$animate)
+
+
+
+## To further split things up
+
+tapply(flags$animate, flags$landmass, mean)
+
+
+
+## summary of countries with red in the flags
+
+tapply(flags$population, flags$red, summary)
+
+
+
+## Summary of population for countries based on ladmass
+
+tapply(flags$population, flags$landmass, summary)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

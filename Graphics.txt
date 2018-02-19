@@ -1,0 +1,155 @@
+## BASE GRAPHICS
+
+## Adavanced graphics
+
+http://varianceexplained.org/r/teach_ggplot2_to_beginners/
+
+
+
+## Load the cars data set
+
+data(cars)
+
+
+
+## Help page for cars
+
+?cars
+
+
+
+## preview of cars
+
+head(cars)
+
+
+
+## commands to get aquainted with data : dim(), names(), head(), tail() and summary()
+
+
+
+## How to pick what goes on each axis
+
+plot(x = cars$speed, y = cars$dist)
+plot(x = cars$dist, y = cars$speed)
+
+
+
+## How to change labels on the axum
+
+plot(x = cars$speed, y = cars$dist, xlab = "Speed")
+plot(x = cars$speed, y = cars$dist, ylab = "Stopping Distance")
+plot(x = cars$speed, y = cars$dist, xlab = "Speed", ylab = "Stopping Distance")
+
+
+
+## Change the title
+
+plot(cars, main = "My Plot")
+
+
+
+## With a subtitle
+
+plot(cars, sub = "My Plot Subtitle")
+
+
+
+## To get more details on the arguments we can use
+
+?par
+
+
+
+## To change colors?
+
+plot(cars, col = 2)
+
+
+
+## Limiting the x axis
+
+plot(cars, xlim = c(10, 15))
+
+
+
+## Change shape of point
+
+plot(cars, pch = 2)
+
+
+
+## Load a difference dataset
+
+data(mtcars)
+
+
+
+## Boxplots?
+
+boxplot(formula = mpg ~ cyl, data = mtcars)
+
+
+
+## Histograms?
+
+hist(mtcars$mpg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

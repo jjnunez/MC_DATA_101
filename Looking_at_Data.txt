@@ -1,0 +1,104 @@
+## Looking at Data
+
+## How to list the variables in a dataset
+
+ls()
+
+
+
+## Check the class of a variable
+
+class(plants)
+
+
+
+## How to see how many rows and columns a data frame has
+
+dim(plants)
+
+
+
+## How many rows? How many columns
+
+nrow(plants)
+ncol(plants)
+
+
+
+## How large is the data file?
+
+object.size(plants)
+
+
+
+## What is inside this dataset?
+
+names(plants)
+
+
+
+## How to preview the top of the dataset.
+
+head(plants)
+
+
+
+## If I want 10 rows instead of the default 6, I add a second argument
+
+head(plants, 10)
+
+
+
+## If I want to see the end of a dataset, I use tail
+
+tail(plants, 15)
+
+
+
+## To get descriptive statistics?
+
+summary(plants)
+
+
+
+## Descriptives for a specific variable?
+
+table(plants$Active_Growth_Period)
+
+
+
+## Best way to look at the structure of a dataset?
+
+str(plants)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

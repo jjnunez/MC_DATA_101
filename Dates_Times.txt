@@ -1,0 +1,117 @@
+## Dates and Times
+
+## Place today's date in a variable
+
+d1 <- Sys.Date()
+
+
+
+## How to check if it is in fact a date
+
+class(d1)
+
+
+
+## How to look inside of a variable
+
+unclass(d1)
+
+
+
+## Save under another form or before 1970
+
+d2 <- as.Date("1969-01-01")
+unclass(d2)
+
+
+
+## time right now
+
+t1 <- Sys.time()
+class(t1)
+
+
+
+## Time in another form 
+
+t2 <- as.POSIXlt(Sys.time())
+class(t2)
+t2
+unclass(t2)
+str(unclass(t2))
+
+
+
+## How to take out a specific portion of the time
+
+t2$min
+
+
+
+## Other functions to extract data
+
+weekdays(d1)
+months(t1)
+quarters(t2)
+
+
+
+## Now to see how to get R to convert to its own time
+
+t3 <- "October 17, 1986 08:24"
+t4 <- strptime(t3, "%B %d, %Y %H:%M")
+t4
+
+
+
+## Compare a preivous time to current time
+
+Sys.time() > t1
+Sys.time() - t1
+
+
+
+## Checking time difference
+
+difftime(Sys.time(), t1, units = 'days')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

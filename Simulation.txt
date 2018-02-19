@@ -1,0 +1,108 @@
+## Tools to simulate random numbers
+
+## Simulate rolling 4 dice. randomly select 4 numbers 1 through 6
+## The , replace option says that whatever number is picked, it can be picked again
+
+
+sample(1:6, 4, replace = TRUE)
+
+
+
+## Now what if I do not want to replace?
+
+sample(1:20, 10)
+
+
+
+## LETTERS is a variable in R that contains all of the letters in the alphabet
+
+LETTERS
+
+
+
+## The sample function can be used to rearrange a vector.
+
+sample(LETTERS)
+
+
+
+## 100 flips of a loaded coin
+
+flips <- sample(c(0, 1), 100, replace = TRUE, prob = c(0.3, 0.7))
+flips
+
+
+
+## How many heads is that?
+
+sum(flips)
+
+
+
+## We can also use the rbinom
+
+rbinom(1, size = 100, prob = 0.7)
+
+
+
+## Or we can flip 100 coins 1 time instead 1 coin 100 times
+
+flips2 <- rbinom(100, size = 1, prob = 0.7)
+flips2
+sum(flips2)
+
+
+
+## rnorm gets numbers from the normal distribution (mean 0 sd 1)
+
+rnorm(10, mean = 100, sd = 25)
+
+
+
+
+## 100 groups of 5 random numbers using poisson with a mean of 10
+
+rpois(5, lambda = 10)
+my_pois <- replicate(100, rpois(5, 10))
+my_pois
+
+
+
+## Now to get the means of each of the 5 groups
+
+cm <- colMeans(my_pois)
+cm
+
+
+
+## Now to look at the distribution of this variable
+
+hist(cm)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
