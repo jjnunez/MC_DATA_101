@@ -1,0 +1,15 @@
+## Bivariate Plot
+
+
+## First you have to change the margins
+
+par(mar=c(1,1,1,1))
+
+
+
+
+## Then you can plot
+
+plot(x = LESDATA$V14, y = LESDATA$V254, xlab = "INFANT MORTALITY RATE 1991", ylab = "REAL GDP PER CAPITA (PPP$) 1991", main = "GDP X INFANTA MORTALITY", col = 2, pch= 17)
+
+

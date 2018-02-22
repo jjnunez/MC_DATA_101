@@ -1,0 +1,56 @@
+## How to run a bivariate regression with R
+
+
+## Set working directory 
+
+setwd("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101")
+
+
+
+
+## you have to save data frame as .Rda file
+
+
+
+
+save(LESDATA,file="LESDATA.Rda")
+
+
+
+
+## Download the psych package to get descriptives
+
+require(psych)
+describe.by(LESDATA$V14)
+describe.by(LESDATA$V254)
+
+
+
+
+## Then you have to run the regression
+
+reg <- lm(V14 ~ V254, LESDATA)
+
+summary(reg)
+
+
+
+## Standardized coefficients?
+
+## First download lm.beta
+
+
+
+require(lm.beta)
+library(lm.beta)
+reg2 <- lm.beta(reg)
+reg2
+
+
+## Multiple regression (for later) just add a + in iv list
+
+
+
+
+
+

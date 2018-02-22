@@ -1,0 +1,13 @@
+## Download "haven" package
+
+require(haven)
+
+
+
+## Then find the data in your folder
+
+LESDATA <- read_stata(file.choose())
+LESDATA2 <- read_sav(file.choose())
+
+
+
