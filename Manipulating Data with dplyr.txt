@@ -1,0 +1,181 @@
+## Manipulation Data with dplyr
+
+## First I load the data frame
+
+mydf <- read.csv(path2csv, stringsAsFactors = FALSE)
+
+
+
+## Now I look at the dimension of this data frame
+
+dim(mydf)
+
+
+
+## Then I preview the contents of the data frame
+
+head(mydf)
+
+
+
+## Now I bring up the packagae dplyr
+
+library(dplyr)
+
+
+
+## What version of dplyr is installed?
+
+packageVersion("dplyr")
+
+
+
+## Now I load the data into a data frame table
+
+cran <- tbl_df(mydf)
+
+
+
+
+## How to remove an open data frame
+
+rm("mydf")
+
+
+
+## Now I look at my new data frame
+
+cran
+
+
+
+## dplyr supplies five 'verbs' that cover most fundamental data manipulation tasks: select(), filter(), arrange(), mutate(), and summarize()
+
+
+## What does select() do?
+
+?select
+
+
+
+## I only want to select certain variables from the data frame
+
+select(cran, ip_id, package, country)
+
+
+
+## A sequence of numbers
+
+5:20
+
+
+
+## select() can use the sequence symbol ":" to get a range of columns to use
+
+select(cran, r_arch:country)
+
+
+
+## It works in reverse as well
+
+select(cran,country:r_arch)
+
+
+
+## To ommit a column, you use the "-" sign
+
+select(cran, -time)
+
+
+
+## If we want to ommit a range of columns
+
+select(cran,-(X:size))
+
+
+
+## How to select a subset of rows
+
+filter(cran, package == "swirl")
+filter(cran, r_version == "3.1.1", country == "US")
+filter(cran, r_version <= "3.0.2", country == "IN")
+filter(cran, country == "US" | country == "IN")
+filter(cran, size > 100500, r_os == "linux-gnu")
+filter(cran, !is.na(r_version))
+
+
+
+## Take a subset of the data
+
+cran2<-select(cran, size:ip_id)
+
+
+
+## How to arrange data in ascending order based on a column
+
+arrange(cran2, ip_id)
+
+
+
+## To do the same in descinding order
+
+arrange(cran2, desc(ip_id))
+
+
+
+## We can also arrange using multiple variables
+
+arrange(cran2, package, ip_id)
+
+
+
+## Some descinding and some ascending
+
+arrange(cran2, country, desc(r_version), ip_id)
+
+
+
+## Take another subset
+
+cran3 <- select(cran, ip_id, package, size)
+
+
+
+## Add a new column based on other columns
+
+mutate(cran3, size_mb = size / 2^20)
+
+
+
+## Add two new columns
+
+mutate(cran3, size_mb = size / 2^20, size_gb = size_mb / 2^10)
+
+
+
+## Add a new column adding a value to another column
+
+mutate(cran3, correct_size = size + 1000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
