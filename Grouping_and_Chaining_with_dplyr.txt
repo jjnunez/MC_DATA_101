@@ -1,0 +1,134 @@
+## Make use of dplyr
+
+library(dplyr)
+
+
+
+## Then turn data set into a data frame
+
+tbl_df(mydf)
+
+
+
+## Now put the datafram into a variable called cran
+
+cran <- tbl_df(mydf)
+
+
+
+## Now remove original dataset to 
+
+rm("mydf") 
+
+
+
+## Now I'm going to print the data to the console
+
+cran
+
+
+
+## How to group by package?
+
+
+
+by_package <- group_by(cran, package)
+
+by_package
+
+
+
+## How to get mean size for each group?
+
+summarize(by_package, mean(size))
+
+
+
+## How to compute multiple values
+
+pack_sum <- summarize(by_package,
+                      count = n() ,
+                      unique = n_distinct(ip_id),
+                      countries = n_distinct(country),
+                      avg_bytes = mean(size))
+                      
+                      
+## Now I'm going go print to result
+
+pack_sum
+
+
+  
+## How to see the top 1% of downloaded packages?
+
+quantile(pack_sum$count, probs = 0.99)
+
+
+
+## How to get the rows where count is greater than 679
+
+top_counts <- filter(pack_sum, count > 679)
+
+
+
+## print the result
+
+top_counts
+
+
+
+## How to view the data
+
+View(top_counts)
+
+
+
+## How to sort based on count
+
+top_counts_sorted <- arrange(top_counts, desc(count))
+View(top_counts_sorted)
+
+
+## Top 1 percent of the unique variables
+
+quantile(pack_sum$unique, probs = 0.99)
+
+
+
+## Let's look at the rows where unique is larger than 465
+
+top_unique <- filter(pack_sum, unique > 465)
+View(top_unique)
+
+
+
+## Now we sort the data
+
+top_unique_sorted <- arrange(top_unique, desc(unique))
+View(top_unique_sorted)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
