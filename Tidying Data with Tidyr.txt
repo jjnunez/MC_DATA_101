@@ -1,0 +1,29 @@
+## Tidying data with tidyr
+
+## Read this paper if you are planning on working with data
+
+http://vita.had.co.nz/papers/tidy-data.pdf
+
+
+
+## How to use gather to arrange a dataset
+
+gather(students, sex, count, -grade)
+
+
+
+## How to clean a dataset with two courses
+
+res <- gather(students2, key = sex_class, value = count, -grade)
+res
+
+
+
+## How to split a column into two columns
+
+separate(res, sex_class, c("sex", "class"))
+
+
+
+
+

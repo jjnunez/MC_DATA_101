@@ -1,0 +1,177 @@
+## Times and Dates with lubridate
+
+## How to view you locale
+
+Sys.getlocale("LC_TIME")
+
+
+
+## Load lubridate package
+
+library(lubridate)
+
+
+
+## How to view the overview of the package
+
+help(package = lubridate)
+
+
+
+## How to view today's date
+
+this_day <- today()
+this_day
+
+
+
+## year(), month(), or day() extract parts of the date
+
+year(this_day)
+
+
+
+## How to get the weekday of the date
+
+wday(this_day)
+
+
+
+## What if I want to get the label instead of the number of the weekday?
+
+wday(this_day, label = TRUE)
+
+
+
+## How to get this exact moment in time
+
+this_moment <- now()
+this_moment
+
+
+
+## How to extract time portions of the date: hour(), minute(), and second()
+
+hour(this_moment)
+
+
+
+## lubridate does a good job in inserting portions of the date (parsing date): ymd(), dmy(), hms(), ymd_hms() where years (y), months (m), days (d), hours (h), minutes (m), and/or seconds (s)
+
+my_date <- ymd("1989-05-17")
+my_date
+
+
+
+## How did R store the date?
+
+class(my_date)
+
+
+
+## lubridate understands how dates work
+
+ymd("1989 May 17")
+mdy("March 12, 1975")
+dmy(25081985)
+ymd("1920-1-2")
+
+
+
+## how to parse a stored date-time variables
+
+ymd_hms(dt1)
+
+
+
+## How to parse only time
+
+hms("03:22:14")
+
+
+
+## Same thing with a vector of dates]
+
+ymd(dt2)
+
+
+
+## How to update a previously saved time?
+
+update(this_moment, hours = 8, minutes = 34, seconds = 55)
+
+
+
+## How to update the contents of the variables
+
+this_moment <- update(this_moment, hours = 8, minutes = 34, seconds = 55)
+this_moment
+
+
+
+## What if I want the time in New York right now?
+
+nyc <- now("America/New_York")
+nyc
+
+
+### Visit http://en.wikipedia.org/wiki/List_of_tz_database_time_zones for more time zones
+
+
+
+## What if I want to add two days to a saved date and then update it
+
+depart <- nyc + days(2)
+depart
+depart <- update(depart, hours = 17 , minutes = 34)
+
+
+
+## When am I arriving? 
+
+arrive <- depart + hours(15) + minutes(50)
+
+
+
+## Times as they would appear in another time zone
+
+?with_tz
+arrive <- with_tz(arrive, "Asia/Hong_Kong")
+arrive
+
+
+
+## Compare to a previous day
+
+last_time <- mdy("June 17, 2008", tz = "Singapore")
+last_time
+
+
+
+## How much time has passed between two dates?
+
+?interval
+how_long <- interval(last_time, arrive)
+as.period(how_long)
+
+
+
+## How long did this lesson take?
+
+stopwatch()
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
