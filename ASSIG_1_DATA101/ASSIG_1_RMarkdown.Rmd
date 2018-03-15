@@ -1,0 +1,229 @@
+---
+title: "Nunez_Assig1"
+author: "Jean Jacques"
+date: "March 14, 2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+First I'm going to start by turning an SPSS file (i.e., .sav) into an RMarkdown file (i.e., .Rda). The data I will be using is from the World Bank. For more information on how to download World Bank data, please visit https://data.worldbank.org
+
+Once the data is downloaded to a .SAV file, it is easy to use it using R by using the 'haven' package.
+
+
+```{r}
+setwd("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_1_DATA101")
+##install.packages("haven")
+library(haven)
+```
+
+
+
+Now I turn the .SAV file that is saved in my path into a .Rda file.
+
+```{r}
+ASSIG1_DATA <- read_spss("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_1_DATA101\\SPSS_DATA_FOR_R.SAV")
+```
+
+
+
+Once the data set ASSIG1_DATA is in the environment, I can save it as an .Rda file.
+
+```{r}
+save(ASSIG1_DATA,file="ASSIG1_DATA.Rda")
+```
+
+
+
+Now I can look at the data using 'dplyr'. First I download at bring up the package
+
+```{r}
+##install.packages("dplyr")
+library(dplyr)
+```
+
+
+
+Now I look at the dimensions of the ASSIG1_DATA data frame.
+
+```{r}
+dim(ASSIG1_DATA)
+```
+
+
+
+I see that there are 148 rows and 356 columns. Let's look at the top 6 rows of this data frame.
+
+```{r}
+head(ASSIG1_DATA)
+```
+
+
+
+I see that the countries at the top of this data frame are Afghanistan, Albania, Algeria, Angola, Argentina, and Armenia. This data frame has way too many variables (i.e., columns) so I have to take a subset of the variables that I want to use. To take a subset of the data frame, I use the function 'select()'. The variables I am keeping are as coded as follows:
+
+V1 COUNTRY NUMBER ; 
+V2 ABBREVIATED COUNTRY NAME ; 
+V3 COUNTRY NAME ; 
+V5 % ADULT FEMALE ILLITERACY 1990 ; 
+V12 ENERGY CONSUMPTION/CAPITA 1991 ; 
+V14 INFANT MORTALITY RATE 1991 ; 
+V168 F SCDRY SCH ENROL GER 1980 ; 
+V133 CIVIL LIBERTIES 1991 ; 
+
+```{r}
+NEW_ASSIG1_DATA2 <- select(ASSIG1_DATA, V1, V2, V3, V5, V12, V14, V168, V133)
+```
+
+
+
+Let's see what the top and bottom of this data frame looks like now.
+
+```{r}
+head(NEW_ASSIG1_DATA2)
+tail(NEW_ASSIG1_DATA2)
+```
+
+
+
+We still have 148 rows but now only 10 columns are left. Let's look at the descriptive statistics for V14.
+
+```{r}
+summary(NEW_ASSIG1_DATA2$V14)
+```
+
+
+
+Does V14 have any missing values?
+
+```{r}
+is.na(NEW_ASSIG1_DATA2$V14)
+```
+
+
+
+It appears all cases are complete for V14, what about for V5?
+
+```{r}
+is.na(NEW_ASSIG1_DATA2$V5)
+```
+
+
+
+We see that there are a number of cases that are missing for V5. So we are going to remove the missing cases from not only V5, but the rest of the data frame as well. In statistics, this methods of dealing with missing data is called listiwse deletion.
+
+```{r}
+ASSIG1FINAL <- complete.cases(NEW_ASSIG1_DATA2)
+head(NEW_ASSIG1_DATA2[ASSIG1FINAL,])
+```
+
+
+
+The top of the data set doesn't have any missing values, but we have to be sure.
+
+```{r}
+is.na(NEW_ASSIG1_DATA2[ASSIG1FINAL,])
+```
+
+
+
+Maybe I don't want to use V5 at all. How do I delete a column? I use the dplyr function select again.
+
+```{r}
+ASSIG1DATA3<-select(NEW_ASSIG1_DATA2, -V5)
+head(ASSIG1DATA3)
+```
+
+
+
+V5 is no longer part of the variables in this new subset. What if I was interested in only the countries that have high infant mortality rate? I can use the filter function to get that subset of the data.
+
+```{r}
+HIMR <- filter(ASSIG1DATA3, V14 > 50) 
+dim(HIMR)
+head(HIMR)
+tail(HIMR)
+```
+
+
+
+We can see that a lot of countries have an infant mortality rate that is above 50 per 1000 births. Now what if I want to arrange the data according to infant mortality rate? I can use the 'arrange()' function.
+
+```{r}
+HIMR <- arrange(HIMR, V14)
+head(HIMR)
+tail(HIMR)
+```
+
+Out of the countries with more than 50 infant deaths per 1000 live births, we see that Peru is the country with the lowest infant mortality rate and that Mozambique is the country with the highest infant mortality rate. If I wnted to arrange this data in descending order, I can use the code bellow.
+
+```{r}
+HIMR <- arrange(HIMR, desc(V14))
+head(HIMR)
+tail(HIMR)
+```
+
+Everything looks good except for the variable names. So let's change them using the 'rename()' function.
+
+```{r}
+head(HIMR)
+HIMR <- rename(HIMR, Country_ID = V1, Country_Code = V2, Country_Name = V3, Energy_Consumption_Per_Capita = V12, Infant_Mortality_Rate = V14, Female_School_Enrollement = V168, CIVIL_LIBERTIES = V133)
+head(HIMR) 
+```
+
+
+
+Sometime we want to transform variables in our data frame, we can use the funtion 'mutate()' to do that. Let's remove the mean from V168.
+
+```{r}
+HIMR <- mutate(HIMR, meanV168  = Female_School_Enrollement - mean(Female_School_Enrollement, na.rm = TRUE)) 
+head(HIMR)
+```
+
+My new variable was added to the end of the data frame. Finally, we can use the 'group_by()' function to look at the descriptive statistics based on a criterion. In this example, we group data by infant mortality rate.
+
+```{r}
+LIBERTIES <- group_by(HIMR, CIVIL_LIBERTIES)
+head(LIBERTIES)
+tail(LIBERTIES)
+```
+
+Let's look at female school enrollment based on our new data frame.
+
+```{r}
+summarize(LIBERTIES, Infant_Mortality_Rate = mean(Infant_Mortality_Rate, na.rm = TRUE))
+```
+
+We can see that the mean of the countries with the more infant mortality rates have less civil liberties (7 is lowest and 1 is the most liberties)
+
+
+
