@@ -1,0 +1,730 @@
+---
+title: "DATA101 Week5"
+author: "Abdirisak Mohamed"
+date: "Spring 2018"
+output:
+  html_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+geometry: right=2.5in
+---
+
+
+
+# Exploratory Data Analysis (EDA)
+
+- From the book *Exploratory Data Analysis with R*
+
+## Goals of EDA
+
+- Identifying relationships between variables that are particularly interesting or unexpected
+
+- Checking to see if there is any evidence for or against a stated hypothesis
+
+- checking for problems with the collected data, such as missing data or measurement error 
+
+- Identifying certain areas where more data need to be collected. 
+
+- EDA precedes statistical inference methods or machine learning model training
+
+## EDA Checklist
+
+1. Formulate your question
+2. Read in your data
+3. Check the packaging
+4. Run `str()`
+5. Look at the top and the bottom of your data
+6. Check your $n$'s (the count)
+7. Validate with at least one external data source
+8. Try the easy solution first
+9. Challenge your solution
+10. Follow up
+
+## Formulate your question
+  
+- For example,  Which counties in the United States have the highest levels of ambient ozone pollution?
+
+## Read in your data
+
+- Download from [EPA air Quality](https://aqs.epa.gov/aqsweb/airdata/download_files.html#Raw)
+
+```{r}
+library(dplyr)
+library(readr) 
+
+ozone <- read_csv("hourly_44201_2014.csv",  col_types = "ccccinnccccccncnncccccc" )
+
+```
+
+- Rewrite the names of the columns to remove any spaces
+```{r}
+  names(ozone) <- make.names(names(ozone))
+```
+
+## Check the packaging
+```{r}
+ nrow(ozone)
+ ncol(ozone)
+ 
+ # nrow(ozone)*ncol(ozone)*8 bytes (for 64-bit system) --> Gigabytes
+ # object.size(ozone) --> Gigabytes
+```
+
+## Run str()
+```{r}
+str(ozone)
+
+```
+
+## Look at the top and the bottom of your data
+```{r}
+head(ozone[, c(6:7, 10)])
+tail(ozone[, c(6:7, 10)]) 
+
+```
+
+## Check your “n”s (counts)
+
+-For example: The monitors should be monitoring continuously during the day, 
+  so all hours should be represented
+```{r}
+ table(ozone$Time.Local)
+
+```
+
+- How many states are represented in this dataset?
+```{r}
+library(dplyr)
+select(ozone, State.Name) %>% unique %>% nrow 
+```
+- More than 50 states in the U.S.?
+```{r}
+unique(ozone$State.Name) 
+```
+
+
+## Validate with at least one external data source
+- The standard says that the average concentration should not exceed 0.075 parts per million    (ppm). 
+```{r}
+ summary(ozone$Sample.Measurement) 
+```
+
+-The maximum hourly concentration (0.21300) is higher than the standard. 
+ But the third quartile is less than 0.075. 
+
+- Let us look at the quantiles (deciles) of the data:
+```{r}
+ quantile(ozone$Sample.Measurement, seq(0, 1, 0.1)) # probs=seq() numeric vector of probabilities
+
+ ztest<-filter(ozone, Sample.Measurement < 0)
+ nrow(ztest)
+ head(ztest)
+ n_states<-select(ztest, State.Name) %>% unique
+ n_states
+ 
+```
+
+## Which counties have the highest levels of ambient ozone pollution?
+
+```{r}
+ranking <- group_by(ozone, State.Name, County.Name) %>%  summarize(ozone = mean(Sample.Measurement)) %>% as.data.frame %>%  arrange(desc(ozone))
+
+ head(ranking, 10)
+ 
+ tail(ranking, 10) 
+
+```
+
+- Two of the higest level counties are Clear Creek county in Colorado and  Mariposa County in    California. Number of hours in a year: 24 times 365 equals 8760 hours.
+```{r}
+ filter(ozone, State.Name == "Colorado" & County.Name == "Clear Creek") %>% nrow 
+filter(ozone, State.Name == "California" & County.Name == "Mariposa") %>% nrow 
+```
+
+- Clear Creek county has less than expected number of hours; Mariposa county has more than expectd number of hours
+```{r}
+creek<-filter(ozone, State.Name == "Colorado" & County.Name == "Clear Creek") 
+table(creek$Time.Local)
+mariposa<-filter(ozone, State.Name == "California" & County.Name == "Mariposa")
+table(mariposa$Time.Local)
+```
+
+- Clear Creek has missing data. Was the monitor broken ?
+```{r}
+filter(creek, Time.Local == "03:00" )
+```
+
+
+- Mariposa has duplicates for May, June etc. for all hours except 03:00.
+```{r}
+filter(mariposa, Time.Local == "03:00" & Date.Local == "2014-05-01") 
+filter(mariposa, Time.Local == "15:00" & Date.Local == "2014-05-01")
+```
+
+
+- We look at ozone monthly averages. Note that March is missing for Marisopa.
+-  Ozone is higher in summer and lower in winter
+
+```{r}
+# convert the date variable into a Date class.
+ ozone <- mutate(ozone, Date.Local = as.Date(Date.Local))
+# Split the data by month to look at the average hourly levels.
+
+filter(ozone, State.Name == "Colorado" & County.Name == "Clear Creek") %>% 
+  mutate(month = factor(months(Date.Local), levels = month.name)) %>% 
+  group_by(month) %>% 
+  summarize(ozone = mean(Sample.Measurement)) 
+
+filter(ozone, State.Name == "California" & County.Name == "Mariposa") %>% 
+  mutate(month = factor(months(Date.Local), levels = month.name)) %>% 
+  group_by(month) %>% 
+  summarize(ozone = mean(Sample.Measurement)) 
+
+```
+
+# Exploratory Graphics
+
+- Visualizing the data via graphics can be important at the beginning stages of data analysis to understand basic properties of the data,to find simple patterns in data, and to suggest possible modeling strategies.
+
+##  Titanic Data
+
+```{r}
+# install.packages("titanic")
+library(titanic)
+
+train_df<-titanic::titanic_train
+dim(train_df)
+str(train_df)
+head(train_df)
+```
+
+## Simple Summaries: One Dimension
+
+- Five-number summary: Function fivenum()
+- Boxplots: Function boxplot()
+- Barplot: function barplot()
+- Histograms: Function hist()
+-  Densityplot: Function density()
+
+```{r}
+fivenum(train_df$Age)
+
+# summary() has the five-number summary and the mean. compare mean and median to see skewness
+summary(train_df$Age)
+
+var(train_df$Age, na.rm = TRUE)
+
+sd(train_df$Age, na.rm = TRUE)
+
+IQR(train_df$Age, na.rm = TRUE)
+
+
+```
+
+-No built-in function for Mode
+```{r}
+ mode_func <- function(x) {
+   unique_x <- unique(x)
+   unique_x[which.max(tabulate(match(x, unique_x)))]
+   
+ }
+# Which gender is most frequent
+  mode_func(train_df$Sex)
+
+```
+
+## Boxplot
+
+- The “whiskers”of boxplot have a length of 1.5 times the inter-quartile range, or IQR, the distance from the bottom of the box to the top of the box. Anything beyond the whiskers is marked as an “outlier” and is plotted separately as an individual point.
+
+```{r}
+ boxplot(train_df$Age, col = "blue")
+```
+
+```{r}
+filter(train_df, Age > 65)
+filter(train_df, Age < 1)
+```
+
+
+## Histogram
+
+```{r}
+hist(train_df$Age, col = "green")
+
+```
+
+## Barplot
+```{r}
+ table(train_df$Sex) %>% barplot(col = "wheat")
+```
+
+-Stacked Barplots
+```{r, echo=FALSE, fig.height=7, small.mar=FALSE}
+par(mar = c(4, 4, 1, 1))
+gender_surv <- table(train_df$Sex, train_df$Survived)
+gender_surv_prop<-prop.table(gender_surv, 1)
+gender_surv_prop
+barplot(gender_surv, main="Gender and Survival", 
+  xlab="Survived", col=c("blue","red") )
+legend(x="topright", title="Gender",
+       legend = rownames(gender_surv), 
+       fill = c("blue","red"))
+```
+
+## Scatterplots
+```{r}
+ with(train_df, plot(Age, Fare, xlab = "Age", ylab = "Fare")) 
+```
+
+- Gender as third dimension by using color
+```{r}
+ with(train_df, plot(Age, Fare, col = as.factor(Sex) ) ) 
+ legend("bottomleft", legend = col(as.factor(Sex)))
+```
+
+
+# The `ggplot2` Plotting System
+
+ - From the book *Exploratory Data Analysis with R*
+ 
+## The Grammar of Graphics
+
+- The ggplot2 package in R is an implementation of `The Grammar of Graphics` as described by      Leland Wilkinson in his book.The package was written by Hadley Wickham
+
+- To quote from Hadley Wickham’s book on ggplot2, we want to“shorten      the distance from      mind to page”. 
+
+- In summary, ”…the grammar tells us that a statistical graphic is a mapping from data to        aesthetic attributes (colour, shape, size) of geometric objects (points, lines, bars).The      plot may also contain statistical transformations of the data and is drawn on a specific       coordinate system”
+
+## Basic Components of a `ggplot2` Plot
+
+• A data frame: stores all of the data that will be displayed on the plot    
+• aesthetic mappings: describe how data are mapped to color, size, shape, location    
+• geoms: geometric objects like points, lines, shapes.    
+• facets: describes how conditional/panel plots should be constructed     
+• stats: statistical transformations like binning, quantiles, smoothing.        
+• scales: what scale an aesthetic map uses (example: male=red, female=blue).    
+• coordinate system: describes the system in which the locations of the geoms will be drawn
+
+-- Plots are built up in layers, with the typically ordering being
+1. Plot the data    
+2. Overlay a summary    
+3. Add metadata and annotation   
+
+
+
+
+## Package `ggplot2` 
+
+
+```{r}
+library(ggplot2)
+```
+
+
+## The Grammar
+
+- `ggplot()`
+- `aes()`
+- `geom_*()`
+- `facet_*()`
+- `scale_*()`
+- `theme()`
+- `labs()`
+
+
+- The `*` is a placeholder differnt terms.
+
+
+## Geometries
+
+- `geom_bar()`
+- `geom_boxplot()`
+- `geom_violin()`
+- `geom_histogram()`
+- `geom_density()`
+- `geom_line()`
+- `geom_point()`
+- `geom_smooth()`
+- `geom_hex()`
+
+## How to Call `ggplot`
+
+
+```
+ggplot(data = <DATA FRAME>) +
+ geom_*(mapping = aes(x = <VAR X>, y = <VAR Y>))
+``` 
+
+- `<DATA FRAME>` is placeholder for a data frame and `<VAR X>` and `<VAR Y>` stand for variables in the    data frame.  
+- `geom_*` is a placeholder for a geometry such as `geom_bar`.
+- The `+` operator layers the plot together.
+
+
+## Dataset `mpg`
+
+- The dataset mpg comes with the package `ggplot2`
+
+
+```{r}
+
+# You can see the description of mpg on the Help page
+# ?mpg
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color=drv)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color=drv)) + 
+  scale_color_brewer(palette = "Set1", name = "Drive") +
+  labs(title = "MPG vs engine size by Drive", 
+       x = "Displacement", y = "MPG")
+```
+
+- We can call `aes()` just once from within `ggplot()` instead of calling within each 'geom`
+
+
+```{r}
+g<-ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color=drv))
+
+class(g)
+
+g + geom_point()
+
+g + geom_point() + geom_smooth() + 
+  scale_color_brewer(palette = "Set1", name = "Drive") +
+  labs(title = "MPG vs engine size by Drive", 
+       x = "Displacement", y = "MPG")
+```
+
+
+
+
+- The dataset `diamonds` comes with the package `ggplot2`
+
+
+
+## Barplots
+
+- `?geom_bar`
+  geom_bar makes the height of the bar proportional to the number of cases in each group (or if the weight aethetic is supplied, the sum of the weights). If you want the heights of the bars to represent values in the data, use geom_col instead. geom_bar uses stat_count by default: it counts the number of cases at each x position. geom_col uses stat_identity: it leaves the data as is.
+
+```{r}
+ str(diamonds)
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+
+
+- Coloring the bars 
+
+```{r}
+
+## Filling color outside aes() is for  all bars
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut), fill = "blue", colour = "red")
+```
+
+
+
+- Each bar gets a different color according to `cut` if we fill inside aes()
+
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut) )
+```
+
+
+- Mapping the fill aesthetic to a third variable, e.g., `clarity`, gives you a stacked bar chart.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+
+- Setting position = "dodge" places overlapping objects directly beside one another.
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping= aes(x = cut, fill = clarity), position = "dodge")
+```
+
+- [Data visualisation](http://r4ds.had.co.nz/visualize.html)
+- Setting position = "fill" places overlapping objects above one another. However, it scales the objects to take up all of the available vertical space. As a result, position = "fill" makes it easy to compare relative frequencies across groups.
+
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping=aes(x = cut, fill = clarity), position = "fill") +
+  labs(x = "cut", y = "relative frequencies within cut")
+```
+
+## Boxplots 
+
+
+-The boxplot compactly displays the distribution of a continuous variable. It visualises five summary statistics (the median, two hinges and two whiskers), and all "outlying" points individually.
+
+```{r}
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+```
+
+
+- Fill blue color in the boxes
+
+```{r}
+ggplot(data = mpg) + 
+  geom_boxplot(mapping = aes(x = class, y = hwy), fill = "blue") 
+```
+
+- To color each box differently based on the class of the car, use `fill` argument in the `aes()`
+
+```{r}
+ggplot(data = mpg) + 
+  geom_boxplot(mapping = aes(x = factor(class), y = hwy, 
+                             fill = factor(class)))
+```
+
+## geom_jitter
+
+- The jitter geom is a convenient shortcut for geom_point(position = "jitter"). It adds a small amount of random variation to the location of each point, and is a useful way of handling overplotting caused by discreteness in smaller datasets.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x=factor(cyl), y=hwy)) + 
+  geom_boxplot() +
+  geom_jitter(width = 0.25)
+```
+
+## geom_violin
+
+- A violin plot is a compact display of a continuous distribution. It is a blend of geom_boxplot and geom_density: a violin plot is a mirrored density plot displayed in the same way as a boxplot.
+
+```{r}
+ggplot(data = mpg) + 
+  geom_violin(mapping = aes(x = drv, y = hwy))
+
+# Together with jitter
+ggplot(data = mpg, mapping = aes(x = drv, y = hwy)) + 
+  geom_violin(adjust=0.5) +
+  geom_jitter(width=0.25, alpha=0.5) # alpha : Modify colour transparency. 
+```
+
+
+## geom_histogram
+
+- Visualise the distribution of a single continuous variable by dividing the x axis into bins and counting the number of observations in each bin
+
+```{r}
+ggplot(diamonds, aes(carat)) +
+  geom_histogram()
+
+ggplot(diamonds, aes(carat)) +
+  geom_histogram(binwidth = 0.01)
+
+ggplot(diamonds, aes(carat)) +
+  geom_histogram(bins = 200)
+```
+
+- Rather than stacking histograms, it's easier to compare frequency polygons
+
+
+```{r}
+
+# Stacking
+ggplot(diamonds, aes(price, fill = cut)) +
+  geom_histogram(binwidth = 500)
+
+# Compare frequency polygons
+ggplot(diamonds, aes(price, colour = cut)) +
+  geom_freqpoly(binwidth = 500)
+
+```
+
+
+## geom_density
+
+```{r}
+ggplot(diamonds, aes(carat)) +
+  geom_density()
+
+# Add colors
+ggplot(diamonds, aes(carat)) +
+geom_density(color="red", fill="green")
+
+
+```
+
+- We plot a `carat` density plot for each `cut` using different colors
+```{r}
+ggplot(diamonds) +
+  geom_density(mapping = aes(x=carat, color=cut))
+```
+
+
+
+
+- Add a density curve to a histogram:
+
+```{r, message=FALSE}
+ggplot(diamonds, aes(carat)) + 
+  geom_histogram(aes(y=..density..), color="red", fill="white") +
+  geom_density(fill="green",  alpha=.5)
+
+
+```
+
+## geom_line
+
+- geom_line() connects the observations in the order of the variable on the x axis.
+- It is suitable for time series
+
+```{r}
+ ggplot(economics, aes(date, unemploy)) + geom_line()
+
+ggplot(economics_long, aes(date, value01, colour = variable)) +
+  geom_line()
+```
+
+
+
+## geom_point for Scatterplots
+
+- The point geom is used to create scatterplots. The scatterplot is most useful for displaying the        relationship between two continuous variables.
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+
+- You can convey information about your data by mapping the aesthetics in your plot to the variables in your dataset. For example, you can map the colors of your points to the class variable to reveal the class of each car.
+
+
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class) )
+```
+
+
+--Mapping class to the size aesthetic.
+--The exact size of each point would reveal its class affiliation. We get a warning here, because         mapping an unordered variable (class) to an ordered aesthetic (size) is not a good idea.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+
+- Mapping `class` to the alpha aesthetic, which controls the transparency of the points, or the shape of the points.
+
+```{r}
+# The transparency of the points
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+
+# The shape of the points
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+
+# What happened to the SUVs? ggplot2 will only use six shapes at a time. By default, additional groups will go unplotted when you use the shape aesthetic.
+
+```
+
+- You can also set the aesthetic properties of your geom manually. For example, we can make all of the points in our plot blue
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+
+
+- Adding a smoothing function. `se=FALSE` means not displaying confidence interval. The default is        `loess` (Local Polynomial Regression Fitting).
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(se=FALSE)
+```
+- Using linear regression
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm", se=FALSE)
+```
+
+
+
+##  Facets
+
+- One way to add additional variables is with aesthetics. Another way, particularly useful for      categorical variables, is to split your plot into facets, subplots that each display one subset of the data.
+
+- To facet your plot by a single variable, use facet_wrap()
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+- To facet your plot on the combination of two variables, add facet_grid() to your plot call. 
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+## Simpson's Paradox
+
+-  The iris data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.
+
+- Simpson's paradox occurs when a trend appears in several different groups of data but disappears or reverses when these groups are combined.
+
+- A positive trend in each group
+```{r}
+ggplot(data = iris, mapping = aes(Sepal.Length, Sepal.Width)) + geom_point() + facet_grid(. ~ Species) + geom_smooth(method = "lm")
+```
+
+- A negative trend when these groups are combined
+```{r}
+ggplot(data = iris, mapping = aes(x=Sepal.Length,y=Sepal.Width)) + geom_point( aes(color = Species )) + geom_smooth(method = "lm")
+```
+##  Saving to a File
+
+-Assigning the plot to a local variable
+```{r}
+g<-ggplot(data = mpg) 
+
+ g + geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+
+- You can save the plot to your local machine
+```{r}
+g<-ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) 
+
+
+ggsave(filename="mpg_scatterplot.png", plot=g) 
+ggsave(filename="mpg_scatterplot.pdf", plot=g) 
+
+```
+
+
+
+

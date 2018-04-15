@@ -1,0 +1,400 @@
+---
+title: "Project 2 - MC DATA 101"
+author: "Juan J. Nunez"
+date: "April 14, 2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+First I'm going to start by turning an SPSS file (i.e., .sav) into an RMarkdown file (i.e., .Rda). The data I will be using is from the World Bank. For more information on how to download World Bank data, please visit https://data.worldbank.org
+
+Once the data is downloaded to a .SAV file, it is easy to use it using R by bringing up the 'foreign' package.
+
+
+
+```{r}
+setwd("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_2_DATA101")
+
+```
+
+
+
+I can look at the data using 'ggplot'. I download and bring up the package. First I get the data.
+
+
+
+```{r}
+##install.packages("ggplot2")
+library(ggplot2)
+```
+
+
+
+Now I look at the dimensions of the ASSIG2_DATA data frame.
+
+
+
+```{r}
+library(foreign)
+NEWLES <- read.spss("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_2_DATA101\\LES101.SAV", use.value.labels=TRUE, to.data.frame=TRUE)
+
+ASSIG2_DATA <- NEWLES
+
+save(ASSIG2_DATA, file = "ASSIG2_DATA.Rda")
+
+dim(ASSIG2_DATA)
+```
+
+
+
+I see that there are 148 rows and 356 columns. Let's look at a basic scatterplot first.
+
+
+
+```{r}
+ggplot(ASSIG2_DATA, aes(V14, V168)) +
+  geom_point()
+```
+
+
+
+What we can see here is that there is a trend where as V14 increases, V168 decreases. To understand this better, we use the codebook below to understand what our variables of interest mean.
+
+V1 COUNTRY NUMBER ; 
+V2 ABBREVIATED COUNTRY NAME ; 
+V3 COUNTRY NAME ; 
+V5 % ADULT FEMALE ILLITERACY 1990 ; 
+V12 ENERGY CONSUMPTION/CAPITA 1991 ; 
+V14 INFANT MORTALITY RATE 1991 ; 
+V168 FEMALE SECODARY SCHOOL ENROLLMENT GROSS 1980 ; 
+V133 CIVIL LIBERTIES 1991 ; 
+V188 WORLD AS 5 REGIONS ;
+
+
+
+
+```{r}
+library(dplyr)
+SHORT_ASSIG2_DATA <- select(ASSIG2_DATA, V1, V2, V3, V5, V12, V14, V168, V133)
+```
+
+There is another issue that we have to take care of before we move on. Are there any missing values in V14 or V168?
+
+
+```{r}
+is.na(ASSIG2_DATA$V168)
+summary(ASSIG2_DATA$V14)
+summary(ASSIG2_DATA$V168)
+is.na(ASSIG2_DATA$V14)
+```
+
+Apparently there are some missing values. So we should take a look at some statistics. Let's look at the variance, standard deviation, and inner quartile range.
+
+
+```{r}
+
+class(SHORT_ASSIG2_DATA)
+
+class(SHORT_ASSIG2_DATA$V14)
+
+var(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
+sd(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
+IQR(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
+var(ASSIG2_DATA$V168, na.rm = TRUE)
+sd(ASSIG2_DATA$V168, na.rm = TRUE)
+IQR(ASSIG2_DATA$V168, na.rm = TRUE)
+```
+
+
+What about the mode?
+
+
+```{r}
+
+vect2 <- na.omit(SHORT_ASSIG2_DATA$V168)
+
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+v <- vect2
+
+
+result <- getmode(v)
+print(result)
+
+
+vect3 <- na.omit(SHORT_ASSIG2_DATA$V14)
+
+getmode2 <- function(z) {
+   uniqz <- unique(z)
+   uniqz[which.max(tabulate(match(z, uniqv)))]
+}
+
+z <- vect3
+
+result2 <- getmode(z)
+print(result2)
+```
+
+
+
+Now that we have seen the statistics, we can start to look at the variables graphically.
+
+
+
+```{r}
+ boxplot(vect2, col = "blue")
+ boxplot(vect3, col = "purple")
+ hist(vect2, col = "green")
+ hist(vect3,col = "red")
+ table(vect2) %>% barplot(col = "wheat")
+ table(vect3) %>% barplot(col = "orange")
+```
+
+
+Let's try stacked barplots. We are going to use the variable civil liberties. We have to make sure to use listwise deletion for this to work.
+
+```{r}
+
+
+
+
+SMALL_DATA <- select(SHORT_ASSIG2_DATA, V14, V133) 
+
+SMALL_DATA <- na.omit(SMALL_DATA)
+
+SMALL_DATA <- mutate(SMALL_DATA, INF_DUM = as.numeric(SMALL_DATA$V14 >= mean(SMALL_DATA$V14))) 
+
+head(SMALL_DATA)
+
+
+
+
+
+
+counts <- table(SMALL_DATA$INF_DUM, SMALL_DATA$V133)
+barplot(counts, main="Countries Infant Moratlity Rate by Civil Liberties",
+  xlab="Civil Liberties", col=c("darkblue","red"),
+  legend = rownames(counts))
+```
+
+
+These graphics are very helpful to identify trends in the data. Let's take a look at a scatterplot now.
+
+```{r}
+
+SCATDAT <- select(SHORT_ASSIG2_DATA, V14, V168)
+SCATDAT <- na.omit(SCATDAT)
+
+
+ with(SCATDAT, plot(V14, V168, xlab = "Infant Mortality Rate", ylab = "Female Education")) 
+```
+
+
+We can confirm the association that we observed at the beginning of this analysis. Sometimes statistical analyses are not linear. 
+
+Now let's see if we can incorporate civil liberties.
+
+
+```{r}
+
+SCATDAT2 <- select(SHORT_ASSIG2_DATA, V14, V168, V133)
+SCATDAT2 <- na.omit(SCATDAT2)
+SCATDAT2 <- mutate(SCATDAT2, CLIBDUM = as.numeric(SCATDAT2$V133 > 3)) 
+
+head(SCATDAT2)
+
+ with(SCATDAT2, plot(V14, V168, col = as.factor(CLIBDUM) ) ) 
+```
+
+
+Finally, we can see how those with more than 3 in civil liberties are red. Now we'll use ggplot again.
+
+
+```{r}
+ggplot(SCATDAT) +
+  aes(x = V14, y = V168) +
+  geom_point()
+```
+
+aes stands for aesthetics. Now we are going to get a line instead of dots.
+
+
+```{r}
+ggplot(SCATDAT) +
+  aes(x = V14, y = V168) +
+  geom_line()
+```
+
+
+Let's add some layers to our previous graphs.
+
+
+```{r}
+ggplot(SCATDAT) +
+  aes(x = V14, y = V168) +
+  geom_point(colour = 'red', alpha = 0.2)
+```
+
+
+Now let's look at the three variables together.
+
+```{r}
+ggplot(SCATDAT2) +
+  aes(x = V14, y = V168, colour = CLIBDUM) +
+  geom_point()
+```
+
+
+We can use a variable with more categories.
+
+```{r}
+SCATDAT3 <- select(SHORT_ASSIG2_DATA, V14, V168, V133)
+SCATDAT3 <- na.omit(SCATDAT3)
+SCATDAT3 <- mutate(SCATDAT3, V133CAT = as.factor(SCATDAT2$V133))
+
+head(SCATDAT3)
+
+ggplot(SCATDAT3) +
+  aes(x = V14, y = V168, colour = V133CAT) +
+  geom_point()
+```
+
+We can even do what is called a facet. We are going to use region of the world.
+
+
+```{r}
+SCATDAT4 <- select(ASSIG2_DATA, V14, V168, V133, V188)
+SCATDAT4 <- na.omit(SCATDAT4)
+SCATDAT4 <- mutate(SCATDAT4, V133CAT = as.factor(SCATDAT4$V133))
+SCATDAT4 <- mutate(SCATDAT4, V188CAT = as.factor(SCATDAT4$V188))
+
+ggplot(SCATDAT4) +
+  aes(x = V14, y = V168, colour = V133CAT) +
+  geom_point() +
+  facet_grid(~ V188CAT)
+```
+
+Now we have a plot for each world region. The codebook of V188 states that the regions are: 
+
+1=Sub-Saharan Africa; 
+2=South Asia, East Asia, and Pacific; 
+3=Europe/Central Asia; 
+4=Middle East and North Africa; 
+5=Americas;
+
+Now let's see what ggplot can do.
+
+```{r}
+ggplot(SCATDAT4) +
+  aes(x = V188) +
+  geom_bar()
+```
+
+Now we create a dummy variable for civil liberties where those with more than 3 in the scale are coded as 1.
+
+
+```{r}
+SCATDAT4 <- mutate(SCATDAT4, CLIBDUM = as.numeric(SCATDAT2$V133 > 3)) 
+head(SCATDAT4)
+SCATDAT4 %>%
+ggplot() +
+  aes(x = V133CAT, fill = V188CAT) +
+  geom_bar()
+```
+
+This is a bit messy, so we try to ammeliorate it.
+
+```{r}
+SCATDAT4 <- mutate(SCATDAT4, CLIBDUM = as.numeric(SCATDAT2$V133 > 3)) 
+SCATDAT4 <- mutate(SCATDAT4, clibcat = as.factor(SCATDAT4$CLIBDUM))
+head(SCATDAT4)
+SCATDAT4 %>%
+ggplot() +
+  aes(x = V188CAT, fill = clibcat) +
+  geom_bar()
+```
+
+Much better. We can make it even better by changing the positions of the bars.
+
+```{r}
+SCATDAT4 <- mutate(SCATDAT4, CLIBDUM = as.numeric(SCATDAT2$V133 > 3)) 
+SCATDAT4 <- mutate(SCATDAT4, clibcat = as.factor(SCATDAT4$CLIBDUM))
+head(SCATDAT4)
+SCATDAT4 %>%
+ggplot() +
+  aes(x = V188CAT, fill = clibcat) +
+  geom_bar(position = 'dodge')
+```
+
+We can look at proportions of the categorical value also.
+
+```{r}
+SCATDAT4 <- mutate(SCATDAT4, CLIBDUM = as.numeric(SCATDAT2$V133 > 3)) 
+SCATDAT4 <- mutate(SCATDAT4, clibcat = as.factor(SCATDAT4$CLIBDUM))
+head(SCATDAT4)
+SCATDAT4 %>%
+ggplot() +
+  aes(x = V188CAT, fill = clibcat) +
+  geom_bar(position = 'fill')
+```
+
+We can see how civil liberties take over proportions in different regions. Now we are going to look at heat plot. This is a useful tool to look for interactions.
+
+```{r}
+HEATDAT <- 
+
+SCATDAT4 %>%
+  group_by(clibcat, V188CAT) %>%
+  summarise(avg_IMR = mean(V14)) %>%
+  ungroup()
+
+ggplot(HEATDAT) +
+  aes(y = clibcat, x = V188CAT, fill = avg_IMR) +
+  geom_raster()
+
+HEATDAT
+```
+
+
+We can see in table all of the combinations of civil liberty and region and their corresponding average infant mortality rate. Let's put the mean infant mortality in the graph.
+
+```{r}
+HEATDAT$label <- HEATDAT$avg_IMR %>% round(1) %>% as.character
+HEATDAT
+```
+
+We can also add color schemes. We need to install and download RColorBrewer.
+
+
+
+```{r}
+##install.packages('RColorBrewer')
+library(RColorBrewer)
+
+ggplot(HEATDAT) + 
+  aes(y = clibcat, x = V188CAT, fill = avg_IMR, label = label) +
+  geom_raster() + 
+  geom_text(colour = 'white',
+            size = 6) + 
+  scale_fill_distiller(name = 'Average Infant Mortality Rate',
+                       type = 'div',
+                       palette = 3) +
+  xlab('Region') +
+  ylab('clibcat') +
+  theme_bw()
+```
+
+
+
