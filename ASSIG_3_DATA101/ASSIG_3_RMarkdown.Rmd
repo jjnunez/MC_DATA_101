@@ -1,0 +1,138 @@
+---
+title: "Project 3 - MC DATA 101"
+author: "Juan J. Nunez"
+date: "April 25, 2018"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+First I'm going to start by turning an SPSS file (i.e., .sav) into an RMarkdown file (i.e., .Rda). The data I will be using is from the World Bank. For more information on how to download World Bank data, please visit https://data.worldbank.org
+
+Once the data is downloaded to a .SAV file, it is easy to use it using R by bringing up the 'foreign' package.
+
+
+```{r}
+setwd("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_3_DATA101")
+
+```
+
+
+
+Now I look at the dimensions of the ASSIG3_DATA data frame.
+
+
+
+```{r}
+library(foreign)
+NEWLES <- read.spss("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_3_DATA101\\LES101.SAV", use.value.labels=TRUE, to.data.frame=TRUE)
+
+ASSIG3_DATA <- NEWLES
+
+save(ASSIG3_DATA, file = "ASSIG3_DATA.Rda")
+
+dim(ASSIG3_DATA)
+```
+
+I see that there are 148 rows and 356 columns.
+
+Codebook:
+
+V1 COUNTRY NUMBER ; 
+V2 ABBREVIATED COUNTRY NAME ; 
+V3 COUNTRY NAME ; 
+V5 % ADULT FEMALE ILLITERACY 1990 ; 
+V12 ENERGY CONSUMPTION/CAPITA 1991 ; 
+V14 INFANT MORTALITY RATE 1991 ; 
+V168 FEMALE SECODARY SCHOOL ENROLLMENT GROSS 1980 ; 
+V133 CIVIL LIBERTIES 1991 ; 
+V188 WORLD AS 5 REGIONS ;
+
+
+Now I can begin by doing a simple hypothesis test using one sample also called population mean.
+
+
+```{r}
+INFMORTCLEAN <-  na.omit(ASSIG3_DATA$V14)
+mean(INFMORTCLEAN)
+sd(INFMORTCLEAN)
+firstttest <- t.test(ASSIG3_DATA$V14, alternative = "two.sided", mu = 50, conf.int = 0.95)
+firstttest
+```
+
+Based on the information I see above, I fail to reject the null hypothesis that the mu is equal to 50. Let's calculate the t statistic ourselves:
+
+
+The numerator is the true mean divided by the mu from the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.
+
+```{r}
+(53.69565 - 50) / (sd(INFMORTCLEAN) / sqrt(length(INFMORTCLEAN)))
+```
+
+Everything seems to be in order.
+
+Now we will do what is called an independent sample t test. The variables we are going to be working on are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.
+
+```{r}
+library(dplyr)
+
+SMALL_DATA <- select(ASSIG3_DATA, V14, V133) 
+
+SMALL_DATA <- na.omit(SMALL_DATA)
+
+mean(SMALL_DATA$V133)
+
+SMALL_DATA <- mutate(SMALL_DATA, CIV_DUM = as.factor(SMALL_DATA$V133 >= mean(SMALL_DATA$V133))) 
+
+SMALL_DATA <- select(SMALL_DATA, -V133)
+
+head(SMALL_DATA)
+
+class(SMALL_DATA$V14)
+class(SMALL_DATA$CIV_DUM)
+levels(SMALL_DATA$CIV_DUM)
+
+```
+
+Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t.test again. First I look at this association using a boxplot.
+
+
+```{r}
+boxplot(SMALL_DATA$V14 ~ SMALL_DATA$CIV_DUM)
+
+```
+
+Now we can use statistics to test whether there is or not a difference in infant mortality rate between the two groups of civil liberties.
+
+H0 = Mean infant mortality rate of those countries that are above the mean of civil liberties is equal to the mean infant mortality rate of those countries that are below the mean of civil liberties. We use a two-sided test to test this hypothesis assuming non-equal variances. We do not assume that the variance between the FALSE and the TRUE groups is equal because of theory. We say unpaired because the countries being evaluated are not the same (i.e., the variables are not measured more than once for each case).
+
+
+```{r}
+t.test(SMALL_DATA$V14~SMALL_DATA$CIV_DUM, mu = 0, alt = "two.sided", conf.int = .95, var.eq=FALSE, paired=FALSE)
+```
+
+Based on the p-value above, we reject the null hypothesis and find evidence to suppor the alternative hypothesis that one mean is significantly higher than the other. If we didn't have theory to guide us, we would have to do a few checks to see if we assume that the variances are equal or not. First we would look at the boxplot above. Then we would look at the variance of the two groups. Finally, we use Leven's test of equal variance where H0 = The population variances are equal. 
+
+```{r}
+var(SMALL_DATA$V14[SMALL_DATA$CIV_DUM=="TRUE"])
+var(SMALL_DATA$V14[SMALL_DATA$CIV_DUM=="FALSE"])
+```
+
+We see that the variances are not equal. Let's look at the Leven's test. To use Leven's test, we have to use the package called 'car'.
+
+
+```{r}
+##install.packages("car")
+library(car)
+leveneTest(SMALL_DATA$V14~SMALL_DATA$CIV_DUM)
+```
+
+Here we can see that with a small p-value, we reject the null hypothesis and conclude that the variances between the two groups are not equal. So we use the non-equal variance option for our analysis.

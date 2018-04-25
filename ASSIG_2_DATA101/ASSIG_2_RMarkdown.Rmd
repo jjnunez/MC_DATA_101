@@ -1,7 +1,7 @@
 ---
-title: "Project 2 - MC DATA 101"
+title: "Project 3 - MC DATA 101"
 author: "Juan J. Nunez"
-date: "April 14, 2018"
+date: "April 25, 2018"
 output:
   pdf_document: default
   html_document:
@@ -28,46 +28,24 @@ setwd("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_2_DATA101")
 
 
 
-I can look at the data using 'ggplot'. I download and bring up the package. First I get the data.
-
-
-
-```{r}
-##install.packages("ggplot2")
-library(ggplot2)
-```
-
-
-
-Now I look at the dimensions of the ASSIG2_DATA data frame.
+Now I look at the dimensions of the ASSIG3_DATA data frame.
 
 
 
 ```{r}
 library(foreign)
-NEWLES <- read.spss("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_2_DATA101\\LES101.SAV", use.value.labels=TRUE, to.data.frame=TRUE)
+NEWLES <- read.spss("C:\\Users\\Juan Nunez\\Desktop\\MC_DATA_101\\ASSIG_3_DATA101\\LES101.SAV", use.value.labels=TRUE, to.data.frame=TRUE)
 
-ASSIG2_DATA <- NEWLES
+ASSIG3_DATA <- NEWLES
 
-save(ASSIG2_DATA, file = "ASSIG2_DATA.Rda")
+save(ASSIG2_DATA, file = "ASSIG3_DATA.Rda")
 
-dim(ASSIG2_DATA)
+dim(ASSIG3_DATA)
 ```
 
+I see that there are 148 rows and 356 columns.
 
-
-I see that there are 148 rows and 356 columns. Let's look at a basic scatterplot first.
-
-
-
-```{r}
-ggplot(ASSIG2_DATA, aes(V14, V168)) +
-  geom_point()
-```
-
-
-
-What we can see here is that there is a trend where as V14 increases, V168 decreases. To understand this better, we use the codebook below to understand what our variables of interest mean.
+Codebook:
 
 V1 COUNTRY NUMBER ; 
 V2 ABBREVIATED COUNTRY NAME ; 
@@ -80,117 +58,48 @@ V133 CIVIL LIBERTIES 1991 ;
 V188 WORLD AS 5 REGIONS ;
 
 
+Now I can begin by doing a simple hypothesis test using one sample also called population mean.
 
+
+```{r}
+INFMORTCLEAN <-  na.omit(ASSIG3_DATA$V14)
+mean(INFMORTCLEAN)
+sd(INFMORTCLEAN)
+firstttest <- t.test(ASSIG3_DATA$V14, alternative = "two.sided", mu = 50, conf.int = 0.95)
+firstttest
+```
+
+Based on the information I see above, I fail to reject the null hypothesis that the mu is equal to 50. Let's calculate the t statistic ourselves:
+
+
+The numerator is the true mean divided by the mu from the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.
+
+```{r}
+(53.69565 - 50) / (sd(INFMORTCLEAN) / sqrt(length(INFMORTCLEAN)))
+```
+
+Everything seems to be in order.
+
+Now we will do what is called an independent sample t test. The variables we are going to be working on are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.
 
 ```{r}
 library(dplyr)
-SHORT_ASSIG2_DATA <- select(ASSIG2_DATA, V1, V2, V3, V5, V12, V14, V168, V133)
-```
-
-There is another issue that we have to take care of before we move on. Are there any missing values in V14 or V168?
-
-
-```{r}
-is.na(ASSIG2_DATA$V168)
-summary(ASSIG2_DATA$V14)
-summary(ASSIG2_DATA$V168)
-is.na(ASSIG2_DATA$V14)
-```
-
-Apparently there are some missing values. So we should take a look at some statistics. Let's look at the variance, standard deviation, and inner quartile range.
-
-
-```{r}
-
-class(SHORT_ASSIG2_DATA)
-
-class(SHORT_ASSIG2_DATA$V14)
-
-var(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
-sd(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
-IQR(SHORT_ASSIG2_DATA$V14, na.rm = TRUE)
-var(ASSIG2_DATA$V168, na.rm = TRUE)
-sd(ASSIG2_DATA$V168, na.rm = TRUE)
-IQR(ASSIG2_DATA$V168, na.rm = TRUE)
-```
-
-
-What about the mode?
-
-
-```{r}
-
-vect2 <- na.omit(SHORT_ASSIG2_DATA$V168)
-
-getmode <- function(v) {
-   uniqv <- unique(v)
-   uniqv[which.max(tabulate(match(v, uniqv)))]
-}
-
-v <- vect2
-
-
-result <- getmode(v)
-print(result)
-
-
-vect3 <- na.omit(SHORT_ASSIG2_DATA$V14)
-
-getmode2 <- function(z) {
-   uniqz <- unique(z)
-   uniqz[which.max(tabulate(match(z, uniqv)))]
-}
-
-z <- vect3
-
-result2 <- getmode(z)
-print(result2)
-```
-
-
-
-Now that we have seen the statistics, we can start to look at the variables graphically.
-
-
-
-```{r}
- boxplot(vect2, col = "blue")
- boxplot(vect3, col = "purple")
- hist(vect2, col = "green")
- hist(vect3,col = "red")
- table(vect2) %>% barplot(col = "wheat")
- table(vect3) %>% barplot(col = "orange")
-```
-
-
-Let's try stacked barplots. We are going to use the variable civil liberties. We have to make sure to use listwise deletion for this to work.
-
-```{r}
-
-
-
-
-SMALL_DATA <- select(SHORT_ASSIG2_DATA, V14, V133) 
+SMALL_DATA <- select(ASSIG3_DATA, V14, V133) 
 
 SMALL_DATA <- na.omit(SMALL_DATA)
 
-SMALL_DATA <- mutate(SMALL_DATA, INF_DUM = as.numeric(SMALL_DATA$V14 >= mean(SMALL_DATA$V14))) 
+mean(SMALL_DATA$V133)
+
+SMALL_DATA <- mutate(SMALL_DATA, CIV_DUM = as.numeric(SMALL_DATA$V133 >= mean(SMALL_DATA$V133))) 
+
+SMALL_DATA <- select(SMALL_DATA, -V133)
 
 head(SMALL_DATA)
 
-
-
-
-
-
-counts <- table(SMALL_DATA$INF_DUM, SMALL_DATA$V133)
-barplot(counts, main="Countries Infant Moratlity Rate by Civil Liberties",
-  xlab="Civil Liberties", col=c("darkblue","red"),
-  legend = rownames(counts))
 ```
 
+Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t.test again.
 
-These graphics are very helpful to identify trends in the data. Let's take a look at a scatterplot now.
 
 ```{r}
 
