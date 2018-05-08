@@ -1,11 +1,11 @@
 ---
 title: "Project 3 - MC DATA 101"
 author: "Juan J. Nunez"
-date: "April 25, 2018"
+date: "May 07, 2018"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -136,3 +136,125 @@ leveneTest(SMALL_DATA$V14~SMALL_DATA$CIV_DUM)
 ```
 
 Here we can see that with a small p-value, we reject the null hypothesis and conclude that the variances between the two groups are not equal. So we use the non-equal variance option for our analysis.
+
+
+Let's suppose we want to take samples from our population and then measure if there is a difference between the mean of the sample means and the population mean. What I'm going to do is first create a function that does the sampling, and then compare the means. There are several ways of taking a random sample from the dataframe. I will show two below.
+
+```{r}
+set.seed(2000)
+n = 100
+index <- sample(1:nrow(SMALL_DATA), n)
+sample_SMALL_DATA<-SMALL_DATA[index, ]
+
+
+SampleTake = function(df,n) { 
+   return (SMALL_DATA[sample(nrow(df), n,  replace = TRUE),])
+}
+
+SMALL_SAMPLE<-SampleTake(SMALL_DATA, 100)
+```
+
+
+Now That I have my samples, I will do a t-test on the infant mortality rate variable.
+
+
+```{r}
+MORTSAMP<-sample_SMALL_DATA$V14
+MORTttest <- t.test(MORTSAMP, alternative = "two.sided", mu = 54, conf.int = 0.95)
+MORTttest
+mean(SMALL_DATA$V14)
+mean(MORTSAMP)
+```
+
+We see above that the mean of V14 (Infant Mortality Rate) of the sample is 58.52 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (p = 0.31). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.
+
+```{r}
+table(sample_SMALL_DATA$CIV_DUM)
+```
+
+
+There are 63 countries that have the same or more (which is less) civil liberties than the mean and there are 37 countries that are below the mean (in this case this means more liberites). 
+
+```{r}
+library(dplyr)
+  CIVSAMP<-sample_SMALL_DATA %>% group_by(CIV_DUM)
+  CIVSAMP%>%summarise(mean(V14))
+```
+
+As we could predict, the countries that have less civil liberties have more infant mortality. The countries that have less civil liberties have more infant mortality. Remeber that TRUE is less civil liberties. We can use the t-test to determine 
+
+```{r}
+BADCIV<-sample_SMALL_DATA%>%filter(CIV_DUM == "TRUE")%>%select(V14)
+GOODCIV<-sample_SMALL_DATA%>%filter(CIV_DUM == "FALSE")%>%select(V14)
+
+t.test(BADCIV, GOODCIV, mu = 0, alt = "two.sided", conf.int = .95, var.eq=FALSE, paired=FALSE)
+
+```
+
+We see that we reject the null hypothesis and find evidence to support the alternative hypothesis. In this situation the difference in the mean of infant mortality rate between the countries with high and low civil liberties is significant. Let's look at the population.
+
+```{r}
+  CIVDAT<-SMALL_DATA %>% group_by(CIV_DUM)
+  CIVDAT%>%summarise(mean(V14))
+  BADCIV2<-SMALL_DATA%>%filter(CIV_DUM == "TRUE")%>%select(V14)
+GOODCIV2<-SMALL_DATA%>%filter(CIV_DUM == "FALSE")%>%select(V14)
+
+t.test(BADCIV2, GOODCIV2, mu = 0, alt = "two.sided", conf.int = .95, var.eq=FALSE, paired=FALSE)
+```
+
+We see that the population also has a signficant different infant mortality rate for the countries that are high or low in civil liberties. Now let's do a loop to figure out how many of our sample means are in the confidence interval.
+
+```{r}
+library(dplyr)
+LIT <- select(ASSIG3_DATA, V133, V5) 
+
+LIT <- na.omit(LIT)
+head(LIT)
+str(LIT)
+
+ count = 0
+ lit_mean = mean(LIT$V5)
+ set.seed(2000)
+  n<-100
+  m<-100  
+  
+ for (i in 1:m){
+          index2<-sample(1:nrow(LIT), n, replace = TRUE)
+          NEWSAMPLE<-LIT[index2,]
+          V5<-NEWSAMPLE$V5
+          result<-t.test(V5)
+          
+
+          
+          lower_bound_conf<-result$conf[1]
+          upper_bound_conf<-result$conf[2]
+          
+
+          
+          if (lower_bound_conf <= lit_mean && lit_mean <= upper_bound_conf){
+            count = count +1 
+          }
+ }
+ 
+
+ count
+```
+
+We see that 93 of the 100 samples have confidence intervals that contain the true mean of the population.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

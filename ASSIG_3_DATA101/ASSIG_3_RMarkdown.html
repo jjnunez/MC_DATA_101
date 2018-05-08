@@ -11,7 +11,7 @@
 
 <meta name="author" content="Juan J. Nunez" />
 
-<meta name="date" content="2018-04-25" />
+<meta name="date" content="2018-05-07" />
 
 <title>Project 3 - MC DATA 101</title>
 
@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Project 3 - MC DATA 101</h1>
 <h4 class="author"><em>Juan J. Nunez</em></h4>
-<h4 class="date"><em>April 25, 2018</em></h4>
+<h4 class="date"><em>May 07, 2018</em></h4>
 
 </div>
 
@@ -240,6 +240,137 @@ library(car)</code></pre>
   </script>
 </div>
 <p>Here we can see that with a small p-value, we reject the null hypothesis and conclude that the variances between the two groups are not equal. So we use the non-equal variance option for our analysis.</p>
+<p>Let’s suppose we want to take samples from our population and then measure if there is a difference between the mean of the sample means and the population mean. What I’m going to do is first create a function that does the sampling, and then compare the means. There are several ways of taking a random sample from the dataframe. I will show two below.</p>
+<pre class="r"><code>set.seed(2000)
+n = 100
+index &lt;- sample(1:nrow(SMALL_DATA), n)
+sample_SMALL_DATA&lt;-SMALL_DATA[index, ]
+
+
+SampleTake = function(df,n) { 
+   return (SMALL_DATA[sample(nrow(df), n,  replace = TRUE),])
+}
+
+SMALL_SAMPLE&lt;-SampleTake(SMALL_DATA, 100)</code></pre>
+<p>Now That I have my samples, I will do a t-test on the infant mortality rate variable.</p>
+<pre class="r"><code>MORTSAMP&lt;-sample_SMALL_DATA$V14
+MORTttest &lt;- t.test(MORTSAMP, alternative = &quot;two.sided&quot;, mu = 54, conf.int = 0.95)
+MORTttest</code></pre>
+<pre><code>## 
+##  One Sample t-test
+## 
+## data:  MORTSAMP
+## t = 1.0148, df = 99, p-value = 0.3127
+## alternative hypothesis: true mean is not equal to 54
+## 95 percent confidence interval:
+##  49.6819 67.3581
+## sample estimates:
+## mean of x 
+##     58.52</code></pre>
+<pre class="r"><code>mean(SMALL_DATA$V14)</code></pre>
+<pre><code>## [1] 58.44538</code></pre>
+<pre class="r"><code>mean(MORTSAMP)</code></pre>
+<pre><code>## [1] 58.52</code></pre>
+<p>We see above that the mean of V14 (Infant Mortality Rate) of the sample is 58.52 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (p = 0.31). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.</p>
+<pre class="r"><code>table(sample_SMALL_DATA$CIV_DUM)</code></pre>
+<pre><code>## 
+## FALSE  TRUE 
+##    37    63</code></pre>
+<p>There are 63 countries that have the same or more (which is less) civil liberties than the mean and there are 37 countries that are below the mean (in this case this means more liberites).</p>
+<pre class="r"><code>library(dplyr)
+  CIVSAMP&lt;-sample_SMALL_DATA %&gt;% group_by(CIV_DUM)
+  CIVSAMP%&gt;%summarise(mean(V14))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["CIV_DUM"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["mean(V14)"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"FALSE","2":"21.40541"},{"1":"TRUE","2":"80.31746"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>As we could predict, the countries that have less civil liberties have more infant mortality. The countries that have less civil liberties have more infant mortality. Remeber that TRUE is less civil liberties. We can use the t-test to determine</p>
+<pre class="r"><code>BADCIV&lt;-sample_SMALL_DATA%&gt;%filter(CIV_DUM == &quot;TRUE&quot;)%&gt;%select(V14)
+GOODCIV&lt;-sample_SMALL_DATA%&gt;%filter(CIV_DUM == &quot;FALSE&quot;)%&gt;%select(V14)
+
+t.test(BADCIV, GOODCIV, mu = 0, alt = &quot;two.sided&quot;, conf.int = .95, var.eq=FALSE, paired=FALSE)</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  BADCIV and GOODCIV
+## t = 9.601, df = 97.269, p-value = 9.514e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  46.73412 71.08999
+## sample estimates:
+## mean of x mean of y 
+##  80.31746  21.40541</code></pre>
+<p>We see that we reject the null hypothesis and find evidence to support the alternative hypothesis. In this situation the difference in the mean of infant mortality rate between the countries with high and low civil liberties is significant. Let’s look at the population.</p>
+<pre class="r"><code>  CIVDAT&lt;-SMALL_DATA %&gt;% group_by(CIV_DUM)
+  CIVDAT%&gt;%summarise(mean(V14))</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["CIV_DUM"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["mean(V14)"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"FALSE","2":"24.8125"},{"1":"TRUE","2":"81.1831"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>  BADCIV2&lt;-SMALL_DATA%&gt;%filter(CIV_DUM == &quot;TRUE&quot;)%&gt;%select(V14)
+GOODCIV2&lt;-SMALL_DATA%&gt;%filter(CIV_DUM == &quot;FALSE&quot;)%&gt;%select(V14)
+
+t.test(BADCIV2, GOODCIV2, mu = 0, alt = &quot;two.sided&quot;, conf.int = .95, var.eq=FALSE, paired=FALSE)</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  BADCIV2 and GOODCIV2
+## t = 9.6247, df = 114.46, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  44.76864 67.97256
+## sample estimates:
+## mean of x mean of y 
+##   81.1831   24.8125</code></pre>
+<p>We see that the population also has a signficant different infant mortality rate for the countries that are high or low in civil liberties. Now let’s do a loop to figure out how many of our sample means are in the confidence interval.</p>
+<pre class="r"><code>library(dplyr)
+LIT &lt;- select(ASSIG3_DATA, V133, V5) 
+
+LIT &lt;- na.omit(LIT)
+head(LIT)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["V133"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["V5"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"7","2":"86","_rn_":"1"},{"1":"4","2":"55","_rn_":"3"},{"1":"7","2":"72","_rn_":"4"},{"1":"3","2":"5","_rn_":"5"},{"1":"1","2":"2","_rn_":"7"},{"1":"1","2":"2","_rn_":"8"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>str(LIT)</code></pre>
+<pre><code>## 'data.frame':    101 obs. of  2 variables:
+##  $ V133: num  7 4 7 3 1 1 5 1 4 5 ...
+##  $ V5  : num  86 55 72 5 2 2 78 2 84 75 ...
+##  - attr(*, &quot;variable.labels&quot;)= Named chr  &quot;COUNTRY NUMBER&quot; &quot;ABBREVIATED COUNTRY NAME&quot; &quot;COUNTRY NAME&quot; &quot;URBAN POP AS % OF TOTAL POP 1991&quot; ...
+##   ..- attr(*, &quot;names&quot;)= chr  &quot;V1&quot; &quot;V2&quot; &quot;V3&quot; &quot;V4&quot; ...
+##  - attr(*, &quot;na.action&quot;)=Class 'omit'  Named int [1:47] 2 6 9 11 18 32 33 39 40 44 ...
+##   .. ..- attr(*, &quot;names&quot;)= chr [1:47] &quot;2&quot; &quot;6&quot; &quot;9&quot; &quot;11&quot; ...</code></pre>
+<pre class="r"><code> count = 0
+ lit_mean = mean(LIT$V5)
+ set.seed(2000)
+  n&lt;-100
+  m&lt;-100  
+  
+ for (i in 1:m){
+          index2&lt;-sample(1:nrow(LIT), n, replace = TRUE)
+          NEWSAMPLE&lt;-LIT[index2,]
+          V5&lt;-NEWSAMPLE$V5
+          result&lt;-t.test(V5)
+          
+
+          
+          lower_bound_conf&lt;-result$conf[1]
+          upper_bound_conf&lt;-result$conf[2]
+          
+
+          
+          if (lower_bound_conf &lt;= lit_mean &amp;&amp; lit_mean &lt;= upper_bound_conf){
+            count = count +1 
+          }
+ }
+ 
+
+ count</code></pre>
+<pre><code>## [1] 93</code></pre>
+<p>We see that 93 of the 100 samples have confidence intervals that contain the true mean of the population.</p>
 
 
 
