@@ -1,7 +1,7 @@
 ---
 title: "Project 3 - MC DATA 101"
 author: "Juan J. Nunez"
-date: "May 07, 2018"
+date: "May 09, 2018"
 output:
   pdf_document: default
   html_document:
@@ -57,7 +57,7 @@ V133 CIVIL LIBERTIES 1991 ;
 V188 WORLD AS 5 REGIONS ;
 
 
-Now I can begin by doing a simple hypothesis test using one sample also called population mean.
+Now I can begin by doing a simple hypothesis test using one sample.
 
 
 ```{r}
@@ -68,10 +68,10 @@ firstttest <- t.test(ASSIG3_DATA$V14, alternative = "two.sided", mu = 50, conf.i
 firstttest
 ```
 
-Based on the information I see above, I fail to reject the null hypothesis that the mu is equal to 50. Let's calculate the t statistic ourselves:
+Based on the information I see above, I fail to reject the null hypothesis that the mean is equal to 50. Let's calculate the t statistic ourselves:
 
 
-The numerator is the true mean divided by the mu from the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.
+The numerator is the true mean divided by the value that determines the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.
 
 ```{r}
 (53.69565 - 50) / (sd(INFMORTCLEAN) / sqrt(length(INFMORTCLEAN)))
@@ -79,7 +79,7 @@ The numerator is the true mean divided by the mu from the null hypothesis. The d
 
 Everything seems to be in order.
 
-Now we will do what is called an independent sample t test. The variables we are going to be working on are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.
+Now we will do what is called an independent sample t test. The variables we are going to be working with are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are equal to or higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.
 
 ```{r}
 library(dplyr)
@@ -102,7 +102,7 @@ levels(SMALL_DATA$CIV_DUM)
 
 ```
 
-Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t.test again. First I look at this association using a boxplot.
+Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t test again. First I look at this association using a boxplot.
 
 
 ```{r}
@@ -119,7 +119,7 @@ H0 = Mean infant mortality rate of those countries that are above the mean of ci
 t.test(SMALL_DATA$V14~SMALL_DATA$CIV_DUM, mu = 0, alt = "two.sided", conf.int = .95, var.eq=FALSE, paired=FALSE)
 ```
 
-Based on the p-value above, we reject the null hypothesis and find evidence to suppor the alternative hypothesis that one mean is significantly higher than the other. If we didn't have theory to guide us, we would have to do a few checks to see if we assume that the variances are equal or not. First we would look at the boxplot above. Then we would look at the variance of the two groups. Finally, we use Leven's test of equal variance where H0 = The population variances are equal. 
+Based on the p-value above, we reject the null hypothesis and find evidence to support the alternative hypothesis that one mean is significantly higher than the other. If we didn't have theory to guide us, we would have to do a few checks to see if we assume that the variances are equal or not. First we would look at the boxplot above. Then we would look at the variance of the two groups. Finally, we use Leven's test of equal variance where H0 = The population variances are equal. 
 
 ```{r}
 var(SMALL_DATA$V14[SMALL_DATA$CIV_DUM=="TRUE"])
@@ -143,7 +143,7 @@ Let's suppose we want to take samples from our population and then measure if th
 ```{r}
 set.seed(2000)
 n = 100
-index <- sample(1:nrow(SMALL_DATA), n)
+index <- sample(1:nrow(SMALL_DATA), n, replace = TRUE)
 sample_SMALL_DATA<-SMALL_DATA[index, ]
 
 
@@ -166,7 +166,7 @@ mean(SMALL_DATA$V14)
 mean(MORTSAMP)
 ```
 
-We see above that the mean of V14 (Infant Mortality Rate) of the sample is 58.52 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (p = 0.31). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.
+We see above that the mean of V14 (Infant Mortality Rate) of the sample is 57.79 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (t = 0.8, p = 0.43). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.
 
 ```{r}
 table(sample_SMALL_DATA$CIV_DUM)

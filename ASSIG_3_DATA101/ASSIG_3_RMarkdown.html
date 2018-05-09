@@ -11,7 +11,7 @@
 
 <meta name="author" content="Juan J. Nunez" />
 
-<meta name="date" content="2018-05-07" />
+<meta name="date" content="2018-05-09" />
 
 <title>Project 3 - MC DATA 101</title>
 
@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Project 3 - MC DATA 101</h1>
 <h4 class="author"><em>Juan J. Nunez</em></h4>
-<h4 class="date"><em>May 07, 2018</em></h4>
+<h4 class="date"><em>May 09, 2018</em></h4>
 
 </div>
 
@@ -144,7 +144,7 @@ dim(ASSIG3_DATA)</code></pre>
 <p>I see that there are 148 rows and 356 columns.</p>
 <p>Codebook:</p>
 <p>V1 COUNTRY NUMBER ; V2 ABBREVIATED COUNTRY NAME ; V3 COUNTRY NAME ; V5 % ADULT FEMALE ILLITERACY 1990 ; V12 ENERGY CONSUMPTION/CAPITA 1991 ; V14 INFANT MORTALITY RATE 1991 ; V168 FEMALE SECODARY SCHOOL ENROLLMENT GROSS 1980 ; V133 CIVIL LIBERTIES 1991 ; V188 WORLD AS 5 REGIONS ;</p>
-<p>Now I can begin by doing a simple hypothesis test using one sample also called population mean.</p>
+<p>Now I can begin by doing a simple hypothesis test using one sample.</p>
 <pre class="r"><code>INFMORTCLEAN &lt;-  na.omit(ASSIG3_DATA$V14)
 mean(INFMORTCLEAN)</code></pre>
 <pre><code>## [1] 53.69565</code></pre>
@@ -163,12 +163,12 @@ firstttest</code></pre>
 ## sample estimates:
 ## mean of x 
 ##  53.69565</code></pre>
-<p>Based on the information I see above, I fail to reject the null hypothesis that the mu is equal to 50. Let’s calculate the t statistic ourselves:</p>
-<p>The numerator is the true mean divided by the mu from the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.</p>
+<p>Based on the information I see above, I fail to reject the null hypothesis that the mean is equal to 50. Let’s calculate the t statistic ourselves:</p>
+<p>The numerator is the true mean divided by the value that determines the null hypothesis. The denominator is the standard deviation of the variable divided by the square root of the sample size.</p>
 <pre class="r"><code>(53.69565 - 50) / (sd(INFMORTCLEAN) / sqrt(length(INFMORTCLEAN)))</code></pre>
 <pre><code>## [1] 1.007995</code></pre>
 <p>Everything seems to be in order.</p>
-<p>Now we will do what is called an independent sample t test. The variables we are going to be working on are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.</p>
+<p>Now we will do what is called an independent sample t test. The variables we are going to be working with are a dummy of the variable civil liberties where 1 is those cases with civil liberties that are equal to or higher than the mean. Infant mortality rate will be the other variable. We have to make sure to use listwise deletion for this to work.</p>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
@@ -200,7 +200,7 @@ head(SMALL_DATA)</code></pre>
 <pre><code>## [1] &quot;factor&quot;</code></pre>
 <pre class="r"><code>levels(SMALL_DATA$CIV_DUM)</code></pre>
 <pre><code>## [1] &quot;FALSE&quot; &quot;TRUE&quot;</code></pre>
-<p>Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t.test again. First I look at this association using a boxplot.</p>
+<p>Now that I have my two variables, I can check if the means of infant mortality rate for the cases above or below the mean on civil liberites are significantly different. I can do this by using t test again. First I look at this association using a boxplot.</p>
 <pre class="r"><code>boxplot(SMALL_DATA$V14 ~ SMALL_DATA$CIV_DUM)</code></pre>
 <p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAAsVBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrY6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kNtmAABmOgBmOjpmZmZmZpBmkJBmkLZmkNtmtttmtv+QOgCQZgCQZjqQkLaQtraQttuQtv+Q2/+2ZgC2Zjq2kGa2kLa2tpC2tra2ttu229u22/+2///bkDrbkGbbtmbbtpDbtrbb27bb29vb2//b////tmb/25D/27b/29v//7b//9v////B06EnAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3dfXubRXbAYZkFDF2WF7cpoRSWNF0TSIFkSbI43/+DVZLfpMeyNXOeGXRGvu9/euEmc6UzZ361bPnx4j0AIYtD/wMARiWgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQlDugC4Bm2ieq+YoNHXq3gePSvFGtF2ypw//DAB4tAQUIElCAIAEF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" width="672" /></p>
 <p>Now we can use statistics to test whether there is or not a difference in infant mortality rate between the two groups of civil liberties.</p>
@@ -217,7 +217,7 @@ head(SMALL_DATA)</code></pre>
 ## sample estimates:
 ## mean in group FALSE  mean in group TRUE 
 ##             24.8125             81.1831</code></pre>
-<p>Based on the p-value above, we reject the null hypothesis and find evidence to suppor the alternative hypothesis that one mean is significantly higher than the other. If we didn’t have theory to guide us, we would have to do a few checks to see if we assume that the variances are equal or not. First we would look at the boxplot above. Then we would look at the variance of the two groups. Finally, we use Leven’s test of equal variance where H0 = The population variances are equal.</p>
+<p>Based on the p-value above, we reject the null hypothesis and find evidence to support the alternative hypothesis that one mean is significantly higher than the other. If we didn’t have theory to guide us, we would have to do a few checks to see if we assume that the variances are equal or not. First we would look at the boxplot above. Then we would look at the variance of the two groups. Finally, we use Leven’s test of equal variance where H0 = The population variances are equal.</p>
 <pre class="r"><code>var(SMALL_DATA$V14[SMALL_DATA$CIV_DUM==&quot;TRUE&quot;])</code></pre>
 <pre><code>## [1] 1635.037</code></pre>
 <pre class="r"><code>var(SMALL_DATA$V14[SMALL_DATA$CIV_DUM==&quot;FALSE&quot;])</code></pre>
@@ -243,7 +243,7 @@ library(car)</code></pre>
 <p>Let’s suppose we want to take samples from our population and then measure if there is a difference between the mean of the sample means and the population mean. What I’m going to do is first create a function that does the sampling, and then compare the means. There are several ways of taking a random sample from the dataframe. I will show two below.</p>
 <pre class="r"><code>set.seed(2000)
 n = 100
-index &lt;- sample(1:nrow(SMALL_DATA), n)
+index &lt;- sample(1:nrow(SMALL_DATA), n, replace = TRUE)
 sample_SMALL_DATA&lt;-SMALL_DATA[index, ]
 
 
@@ -260,29 +260,29 @@ MORTttest</code></pre>
 ##  One Sample t-test
 ## 
 ## data:  MORTSAMP
-## t = 1.0148, df = 99, p-value = 0.3127
+## t = 0.79769, df = 99, p-value = 0.427
 ## alternative hypothesis: true mean is not equal to 54
 ## 95 percent confidence interval:
-##  49.6819 67.3581
+##  48.36257 67.21743
 ## sample estimates:
 ## mean of x 
-##     58.52</code></pre>
+##     57.79</code></pre>
 <pre class="r"><code>mean(SMALL_DATA$V14)</code></pre>
 <pre><code>## [1] 58.44538</code></pre>
 <pre class="r"><code>mean(MORTSAMP)</code></pre>
-<pre><code>## [1] 58.52</code></pre>
-<p>We see above that the mean of V14 (Infant Mortality Rate) of the sample is 58.52 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (p = 0.31). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.</p>
+<pre><code>## [1] 57.79</code></pre>
+<p>We see above that the mean of V14 (Infant Mortality Rate) of the sample is 57.79 and of that of the population is 58.45. The confidence interval for the ttest is from 49.68 to 67.36. In this occassion, I fail to reject the null hyothesis (t = 0.8, p = 0.43). The difference between the population mean and the sample mean is not significant. I want to know use the CIVDUM variable as a dummy. Remember that true is those countries above the mean, meaning those that have low civil liberties.</p>
 <pre class="r"><code>table(sample_SMALL_DATA$CIV_DUM)</code></pre>
 <pre><code>## 
 ## FALSE  TRUE 
-##    37    63</code></pre>
+##    39    61</code></pre>
 <p>There are 63 countries that have the same or more (which is less) civil liberties than the mean and there are 37 countries that are below the mean (in this case this means more liberites).</p>
 <pre class="r"><code>library(dplyr)
   CIVSAMP&lt;-sample_SMALL_DATA %&gt;% group_by(CIV_DUM)
   CIVSAMP%&gt;%summarise(mean(V14))</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["CIV_DUM"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["mean(V14)"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"FALSE","2":"21.40541"},{"1":"TRUE","2":"80.31746"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["CIV_DUM"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["mean(V14)"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"FALSE","2":"18.41026"},{"1":"TRUE","2":"82.96721"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 <p>As we could predict, the countries that have less civil liberties have more infant mortality. The countries that have less civil liberties have more infant mortality. Remeber that TRUE is less civil liberties. We can use the t-test to determine</p>
@@ -294,13 +294,13 @@ t.test(BADCIV, GOODCIV, mu = 0, alt = &quot;two.sided&quot;, conf.int = .95, var
 ##  Welch Two Sample t-test
 ## 
 ## data:  BADCIV and GOODCIV
-## t = 9.601, df = 97.269, p-value = 9.514e-16
+## t = 10.527, df = 80.752, p-value &lt; 2.2e-16
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  46.73412 71.08999
+##  52.35425 76.75966
 ## sample estimates:
 ## mean of x mean of y 
-##  80.31746  21.40541</code></pre>
+##  82.96721  18.41026</code></pre>
 <p>We see that we reject the null hypothesis and find evidence to support the alternative hypothesis. In this situation the difference in the mean of infant mortality rate between the countries with high and low civil liberties is significant. Let’s look at the population.</p>
 <pre class="r"><code>  CIVDAT&lt;-SMALL_DATA %&gt;% group_by(CIV_DUM)
   CIVDAT%&gt;%summarise(mean(V14))</code></pre>
